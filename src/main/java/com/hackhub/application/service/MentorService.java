@@ -1,6 +1,8 @@
 package com.hackhub.application.service;
 
 import com.hackhub.api.dto.request.CreateSupportRequestRequest;
+import com.hackhub.api.dto.request.ProposeCallRequest;
+import com.hackhub.api.dto.response.CallProposalResponse;
 import com.hackhub.api.dto.response.SupportRequestResponse;
 import com.hackhub.api.exception.BadRequestException;
 import com.hackhub.api.exception.ForbiddenException;
@@ -8,14 +10,19 @@ import com.hackhub.api.exception.NotFoundException;
 import com.hackhub.domain.enums.HackathonStatus;
 import com.hackhub.domain.enums.SupportRequestStatus;
 import com.hackhub.domain.model.Hackathon;
+import com.hackhub.domain.model.MentorCallProposal;
 import com.hackhub.domain.model.SupportRequest;
 import com.hackhub.domain.model.Team;
 import com.hackhub.domain.model.User;
 import com.hackhub.infrastructure.repository.HackathonRegistrationRepository;
 import com.hackhub.infrastructure.repository.HackathonRepository;
+import com.hackhub.infrastructure.repository.MentorCallProposalRepository;
 import com.hackhub.infrastructure.repository.SupportRequestRepository;
 import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
+import com.hackhub.infrastructure.external.calendar.CalendarBookingRequest;
+import com.hackhub.infrastructure.external.calendar.CalendarBookingResponse;
+import com.hackhub.infrastructure.external.calendar.CalendarClient;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +41,8 @@ public class MentorService {
 	private final HackathonRegistrationRepository hackathonRegistrationRepository;
 	private final UserRepository userRepository;
 	private final StaffAccessService staffAccessService;
+	private final MentorCallProposalRepository mentorCallProposalRepository;
+	private final CalendarClient calendarClient;
 
 	@Transactional
 	public SupportRequestResponse createSupportRequest(
@@ -83,6 +92,46 @@ public class MentorService {
 			.toList();
 	}
 
+	@Transactional
+	public CallProposalResponse proposeCall(
+		Long supportRequestId,
+		ProposeCallRequest request
+	) {
+		User currentUser = currentUser();
+		SupportRequest supportRequest = supportRequestRepository
+			.findById(supportRequestId)
+			.orElseThrow(() -> new NotFoundException("Support request not found"));
+
+		User assignedMentor = supportRequest.getAssignedMentor();
+		if (assignedMentor == null || !assignedMentor.getId().equals(currentUser.getId())) {
+			throw new ForbiddenException("Only assigned mentor can propose a call");
+		}
+		if (supportRequest.getStatus() == SupportRequestStatus.CLOSED) {
+			throw new BadRequestException("Cannot propose a call for a closed support request");
+		}
+
+		CalendarBookingRequest bookingRequest = new CalendarBookingRequest(
+			supportRequest.getTitle(),
+			request.scheduledAt(),
+			supportRequest.getCreatedByUser().getEmail(),
+			currentUser.getEmail()
+		);
+		CalendarBookingResponse bookingResponse = calendarClient.bookCall(bookingRequest);
+
+		MentorCallProposal proposal = new MentorCallProposal();
+		proposal.setSupportRequest(supportRequest);
+		proposal.setMentor(currentUser);
+		proposal.setScheduledAt(request.scheduledAt());
+		proposal.setExternalCallId(bookingResponse.externalCallId());
+		proposal.setBookingUrl(bookingResponse.bookingUrl());
+		proposal.setCreatedAt(LocalDateTime.now());
+
+		supportRequest.setStatus(SupportRequestStatus.CALL_PROPOSED);
+		supportRequestRepository.save(supportRequest);
+
+		return toResponse(mentorCallProposalRepository.save(proposal));
+	}
+
 	private Hackathon loadHackathon(Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
@@ -111,6 +160,18 @@ public class MentorService {
 			supportRequest.getStatus(),
 			supportRequest.getCreatedAt(),
 			supportRequest.getClosedAt()
+		);
+	}
+
+	private CallProposalResponse toResponse(MentorCallProposal proposal) {
+		return new CallProposalResponse(
+			proposal.getId(),
+			proposal.getSupportRequest().getId(),
+			proposal.getMentor().getId(),
+			proposal.getScheduledAt(),
+			proposal.getExternalCallId(),
+			proposal.getBookingUrl(),
+			proposal.getCreatedAt()
 		);
 	}
 }

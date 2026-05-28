@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 18
+NEXT SECTION TO BE DONE: 19
 ---
 
 ## 1. Spring Boot Project Setup
@@ -528,23 +528,23 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `CalendarClient`
-* [ ] `FakeCalendarClient`
-* [ ] `CalendarBookingRequest`
-* [ ] `CalendarBookingResponse`
-* [ ] Mentor call proposal flow.
+* [x] `CalendarClient`
+* [x] `FakeCalendarClient`
+* [x] `CalendarBookingRequest`
+* [x] `CalendarBookingResponse`
+* [x] Mentor call proposal flow.
 
 Endpoint:
 
-* [ ] `POST /api/support-requests/{supportRequestId}/call-proposal`
+* [x] `POST /api/support-requests/{supportRequestId}/call-proposal`
 
 Acceptance criteria:
 
-* [ ] Assigned mentor can propose a call.
-* [ ] Fake calendar client returns external id.
-* [ ] Fake calendar client returns booking URL.
-* [ ] Support request status becomes `CALL_PROPOSED`.
-* [ ] Strategy Pattern is documented.
+* [x] Assigned mentor can propose a call.
+* [x] Fake calendar client returns external id.
+* [x] Fake calendar client returns booking URL.
+* [x] Support request status becomes `CALL_PROPOSED`.
+* [x] Strategy Pattern is documented.
 
 ---
 
