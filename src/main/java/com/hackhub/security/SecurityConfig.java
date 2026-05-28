@@ -35,7 +35,7 @@ public class SecurityConfig {
 				.requestMatchers("/error").permitAll()
 				.requestMatchers("/h2-console/**").permitAll()
 				.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-				.requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/hackathons/**").permitAll()
 				.anyRequest().authenticated()
 			)

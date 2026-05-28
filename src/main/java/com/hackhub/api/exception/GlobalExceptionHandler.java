@@ -10,6 +10,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -75,6 +77,14 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request
 	) {
 		return buildResponse(HttpStatus.FORBIDDEN, "Access denied", request, List.of());
+	}
+
+	@ExceptionHandler({ NoResourceFoundException.class, NoHandlerFoundException.class })
+	public ResponseEntity<ApiError> handleMissingRoute(
+		Exception ex,
+		HttpServletRequest request
+	) {
+		return buildResponse(HttpStatus.NOT_FOUND, "Resource not found", request, List.of());
 	}
 
 	@ExceptionHandler(Exception.class)
