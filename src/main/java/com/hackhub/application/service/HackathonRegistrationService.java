@@ -33,6 +33,7 @@ public class HackathonRegistrationService {
 	private final TeamRepository teamRepository;
 	private final UserRepository userRepository;
 	private final HackathonService hackathonService;
+	private final StaffAccessService staffAccessService;
 
 	@Transactional
 	public HackathonRegistrationResponse registerTeam(
@@ -74,11 +75,7 @@ public class HackathonRegistrationService {
 		User currentUser = currentUser();
 		Hackathon hackathon = loadHackathon(hackathonId);
 
-		boolean isAssignedStaff = hackathon.getOrganizer().getId().equals(currentUser.getId()) ||
-			hackathon.getJudges().stream().anyMatch(user -> user.getId().equals(currentUser.getId())) ||
-			hackathon.getMentors().stream().anyMatch(user -> user.getId().equals(currentUser.getId()));
-
-		if (!isAssignedStaff) {
+		if (!staffAccessService.canAccessSubmissions(currentUser, hackathon)) {
 			throw new ForbiddenException("Only assigned staff can view registrations");
 		}
 

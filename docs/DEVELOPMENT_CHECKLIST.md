@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 15
+NEXT SECTION TO BE DONE: 16
 ---
 
 ## 1. Spring Boot Project Setup
@@ -461,7 +461,7 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `StaffAccessService`
+* [x] `StaffAccessService`
 
 Methods:
 
@@ -474,9 +474,9 @@ boolean canAccessSubmissions(User user, Hackathon hackathon);
 
 Acceptance criteria:
 
-* [ ] Role alone is not enough.
-* [ ] Assignment to the specific hackathon is checked.
-* [ ] Unassigned staff cannot access protected hackathon data.
+* [x] Role alone is not enough.
+* [x] Assignment to the specific hackathon is checked.
+* [x] Unassigned staff cannot access protected hackathon data.
 
 ---
 
