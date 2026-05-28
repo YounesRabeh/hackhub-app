@@ -10,7 +10,7 @@ spring:
     password:
   h2:
     console:
-      enabled: true
+      enabled: false
       path: /h2-console
   jpa:
     hibernate:
@@ -18,8 +18,10 @@ spring:
     open-in-view: false
 springdoc:
   api-docs:
+    enabled: false
     path: /v3/api-docs
   swagger-ui:
+    enabled: false
     path: /swagger-ui.html
 
 app:
@@ -43,3 +45,8 @@ spring:
   h2:
     console:
       enabled: true
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
