@@ -11,12 +11,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(
 	name = "hackathon_registrations",
 	uniqueConstraints = @UniqueConstraint(columnNames = {"hackathon_id", "team_id"})
 )
+@Getter
+@Setter
 public class HackathonRegistration {
 
 	@Id

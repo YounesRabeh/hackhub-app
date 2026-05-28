@@ -11,6 +11,7 @@ import com.hackhub.domain.enums.Role;
 import com.hackhub.domain.model.User;
 import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
 	private final UserRepository userRepository;
@@ -26,20 +28,6 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
 	private final UserMapper userMapper;
-
-	public AuthService(
-		UserRepository userRepository,
-		PasswordEncoder passwordEncoder,
-		AuthenticationManager authenticationManager,
-		JwtService jwtService,
-		UserMapper userMapper
-	) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.authenticationManager = authenticationManager;
-		this.jwtService = jwtService;
-		this.userMapper = userMapper;
-	}
 
 	public AuthResponse register(RegisterRequest request) {
 		String email = request.email().trim().toLowerCase();

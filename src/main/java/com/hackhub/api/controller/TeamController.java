@@ -4,6 +4,7 @@ import com.hackhub.api.dto.request.CreateTeamRequest;
 import com.hackhub.api.dto.response.TeamResponse;
 import com.hackhub.application.service.TeamService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/teams")
+@RequiredArgsConstructor
 public class TeamController {
 
 	private final TeamService teamService;
-
-	public TeamController(TeamService teamService) {
-		this.teamService = teamService;
-	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)

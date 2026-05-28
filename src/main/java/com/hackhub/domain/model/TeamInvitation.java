@@ -14,12 +14,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(
 	name = "team_invitations",
 	uniqueConstraints = @UniqueConstraint(columnNames = {"team_id", "invited_user_id"})
 )
+@Getter
+@Setter
 public class TeamInvitation {
 
 	@Id

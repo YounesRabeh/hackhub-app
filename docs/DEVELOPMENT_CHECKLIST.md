@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 12
+NEXT SECTION TO BE DONE: 14
 ---
 
 ## 1. Spring Boot Project Setup
@@ -392,25 +392,25 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `InvitationService`
-* [ ] `InvitationController`
-* [ ] Invite user.
-* [ ] Accept invitation.
-* [ ] Decline invitation.
+* [x] `InvitationService`
+* [x] `InvitationController`
+* [x] Invite user.
+* [x] Accept invitation.
+* [x] Decline invitation.
 
 Endpoints:
 
-* [ ] `POST /api/teams/{teamId}/invitations`
-* [ ] `POST /api/invitations/{invitationId}/accept`
-* [ ] `POST /api/invitations/{invitationId}/decline`
+* [x] `POST /api/teams/{teamId}/invitations`
+* [x] `POST /api/invitations/{invitationId}/accept`
+* [x] `POST /api/invitations/{invitationId}/decline`
 
 Acceptance criteria:
 
-* [ ] Only team members can invite users.
-* [ ] Invited user must not already belong to a team.
-* [ ] Only invited user can accept.
-* [ ] Accepted invitation adds user to team.
-* [ ] Already answered invitations cannot be changed.
+* [x] Only team members can invite users.
+* [x] Invited user must not already belong to a team.
+* [x] Only invited user can accept.
+* [x] Accepted invitation adds user to team.
+* [x] Already answered invitations cannot be changed.
 
 ---
 
@@ -420,16 +420,16 @@ Implement team registration to hackathon.
 
 Endpoint:
 
-* [ ] `POST /api/hackathons/{hackathonId}/registrations`
-* [ ] `GET /api/hackathons/{hackathonId}/registrations`
+* [x] `POST /api/hackathons/{hackathonId}/registrations`
+* [x] `GET /api/hackathons/{hackathonId}/registrations`
 
 Acceptance criteria:
 
-* [ ] Team can register only during `REGISTRATION_OPEN`.
-* [ ] Registration after deadline is rejected.
-* [ ] Team exceeding max size is rejected.
-* [ ] Duplicate registration is rejected.
-* [ ] Only assigned staff can list registrations.
+* [x] Team can register only during `REGISTRATION_OPEN`.
+* [x] Registration after deadline is rejected.
+* [x] Team exceeding max size is rejected.
+* [x] Duplicate registration is rejected.
+* [x] Only assigned staff can list registrations.
 
 ---
 

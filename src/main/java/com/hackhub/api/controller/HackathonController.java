@@ -1,11 +1,15 @@
 package com.hackhub.api.controller;
 
 import com.hackhub.api.dto.request.CreateHackathonRequest;
+import com.hackhub.api.dto.request.RegisterTeamToHackathonRequest;
 import com.hackhub.api.dto.request.UpdateHackathonStatusRequest;
+import com.hackhub.api.dto.response.HackathonRegistrationResponse;
 import com.hackhub.api.dto.response.HackathonResponse;
+import com.hackhub.application.service.HackathonRegistrationService;
 import com.hackhub.application.service.HackathonService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,13 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/hackathons")
+@RequiredArgsConstructor
 public class HackathonController {
 
 	private final HackathonService hackathonService;
-
-	public HackathonController(HackathonService hackathonService) {
-		this.hackathonService = hackathonService;
-	}
+	private final HackathonRegistrationService hackathonRegistrationService;
 
 	@GetMapping
 	public List<HackathonResponse> listHackathons() {
@@ -56,5 +58,19 @@ public class HackathonController {
 		@Valid @RequestBody UpdateHackathonStatusRequest request
 	) {
 		return hackathonService.updateStatus(hackathonId, request);
+	}
+
+	@PostMapping("/{hackathonId}/registrations")
+	@ResponseStatus(HttpStatus.CREATED)
+	public HackathonRegistrationResponse registerTeam(
+		@PathVariable Long hackathonId,
+		@Valid @RequestBody RegisterTeamToHackathonRequest request
+	) {
+		return hackathonRegistrationService.registerTeam(hackathonId, request);
+	}
+
+	@GetMapping("/{hackathonId}/registrations")
+	public List<HackathonRegistrationResponse> listRegistrations(@PathVariable Long hackathonId) {
+		return hackathonRegistrationService.listRegistrations(hackathonId);
 	}
 }

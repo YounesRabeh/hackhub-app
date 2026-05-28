@@ -17,30 +17,20 @@ import com.hackhub.infrastructure.repository.HackathonRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class HackathonService {
 
 	private final HackathonRepository hackathonRepository;
 	private final UserRepository userRepository;
 	private final HackathonMapper hackathonMapper;
 	private final HackathonStateFactory hackathonStateFactory;
-
-	public HackathonService(
-		HackathonRepository hackathonRepository,
-		UserRepository userRepository,
-		HackathonMapper hackathonMapper,
-		HackathonStateFactory hackathonStateFactory
-	) {
-		this.hackathonRepository = hackathonRepository;
-		this.userRepository = userRepository;
-		this.hackathonMapper = hackathonMapper;
-		this.hackathonStateFactory = hackathonStateFactory;
-	}
 
 	@Transactional(readOnly = true)
 	public List<HackathonResponse> listHackathons() {

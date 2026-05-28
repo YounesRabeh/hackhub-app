@@ -9,27 +9,19 @@ import com.hackhub.domain.model.Team;
 import com.hackhub.domain.model.User;
 import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class TeamService {
 
 	private final TeamRepository teamRepository;
 	private final UserRepository userRepository;
 	private final TeamMapper teamMapper;
-
-	public TeamService(
-		TeamRepository teamRepository,
-		UserRepository userRepository,
-		TeamMapper teamMapper
-	) {
-		this.teamRepository = teamRepository;
-		this.userRepository = userRepository;
-		this.teamMapper = teamMapper;
-	}
 
 	@Transactional
 	public TeamResponse createTeam(CreateTeamRequest request) {

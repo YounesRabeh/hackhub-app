@@ -13,9 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "teams")
+@Getter
+@Setter
 public class Team {
 
 	@Id
@@ -36,28 +40,4 @@ public class Team {
 		inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
 	private Set<User> members = new HashSet<>();
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public User getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public Set<User> getMembers() {
-		return members;
-	}
 }

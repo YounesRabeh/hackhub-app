@@ -18,9 +18,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "hackathons")
+@Getter
+@Setter
 public class Hackathon {
 
 	@Id
@@ -75,96 +79,4 @@ public class Hackathon {
 		inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
 	private Set<User> mentors = new HashSet<>();
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public LocalDateTime getRegistrationDeadline() {
-		return registrationDeadline;
-	}
-
-	public void setRegistrationDeadline(LocalDateTime registrationDeadline) {
-		this.registrationDeadline = registrationDeadline;
-	}
-
-	public LocalDateTime getSubmissionDeadline() {
-		return submissionDeadline;
-	}
-
-	public void setSubmissionDeadline(LocalDateTime submissionDeadline) {
-		this.submissionDeadline = submissionDeadline;
-	}
-
-	public LocalDateTime getStartAt() {
-		return startAt;
-	}
-
-	public void setStartAt(LocalDateTime startAt) {
-		this.startAt = startAt;
-	}
-
-	public LocalDateTime getEndAt() {
-		return endAt;
-	}
-
-	public void setEndAt(LocalDateTime endAt) {
-		this.endAt = endAt;
-	}
-
-	public HackathonStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(HackathonStatus status) {
-		this.status = status;
-	}
-
-	public BigDecimal getPrizeAmount() {
-		return prizeAmount;
-	}
-
-	public void setPrizeAmount(BigDecimal prizeAmount) {
-		this.prizeAmount = prizeAmount;
-	}
-
-	public User getOrganizer() {
-		return organizer;
-	}
-
-	public void setOrganizer(User organizer) {
-		this.organizer = organizer;
-	}
-
-	public Team getWinnerTeam() {
-		return winnerTeam;
-	}
-
-	public void setWinnerTeam(Team winnerTeam) {
-		this.winnerTeam = winnerTeam;
-	}
-
-	public Set<User> getJudges() {
-		return judges;
-	}
-
-	public Set<User> getMentors() {
-		return mentors;
-	}
 }
