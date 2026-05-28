@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 8
+NEXT SECTION TO BE DONE: 9
 ---
 
 ## 1. Spring Boot Project Setup
@@ -278,32 +278,32 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `AuthService`
-* [ ] `AuthController`
-* [ ] `JwtService`
-* [ ] `JwtAuthenticationFilter`
-* [ ] `CustomUserDetailsService`
-* [ ] `SecurityConfig`
+* [x] `AuthService`
+* [x] `AuthController`
+* [x] `JwtService`
+* [x] `JwtAuthenticationFilter`
+* [x] `CustomUserDetailsService`
+* [x] `SecurityConfig`
 
 Endpoints:
 
-* [ ] `POST /api/auth/register`
-* [ ] `POST /api/auth/login`
+* [x] `POST /api/auth/register`
+* [x] `POST /api/auth/login`
 
 Public endpoints:
 
-* [ ] `POST /api/auth/register`
-* [ ] `POST /api/auth/login`
-* [ ] `GET /api/hackathons`
-* [ ] `GET /api/hackathons/{hackathonId}`
+* [x] `POST /api/auth/register`
+* [x] `POST /api/auth/login`
+* [x] `GET /api/hackathons`
+* [x] `GET /api/hackathons/{hackathonId}`
 
 Acceptance criteria:
 
-* [ ] Users can register.
-* [ ] Users can login.
-* [ ] Login returns JWT.
-* [ ] Protected endpoints reject missing token.
-* [ ] Current authenticated user can be loaded.
+* [x] Users can register.
+* [x] Users can login.
+* [x] Login returns JWT.
+* [x] Protected endpoints reject missing token.
+* [x] Current authenticated user can be loaded.
 
 ---
 

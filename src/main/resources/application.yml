@@ -16,16 +16,17 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
-  security:
-    user:
-      name: dev
-      password: dev
-
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  security:
+    jwt:
+      secret: MDEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkNERUY=
+      expiration-ms: 86400000
 
 logging:
   level:
