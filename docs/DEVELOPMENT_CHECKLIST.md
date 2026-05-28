@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 17
+NEXT SECTION TO BE DONE: 18
 ---
 
 ## 1. Spring Boot Project Setup
@@ -506,21 +506,21 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `MentorService`
-* [ ] `MentorController`
-* [ ] Create support request.
-* [ ] List support requests.
+* [x] `MentorService`
+* [x] `MentorController`
+* [x] Create support request.
+* [x] List support requests.
 
 Endpoints:
 
-* [ ] `POST /api/hackathons/{hackathonId}/support-requests`
-* [ ] `GET /api/hackathons/{hackathonId}/support-requests`
+* [x] `POST /api/hackathons/{hackathonId}/support-requests`
+* [x] `GET /api/hackathons/{hackathonId}/support-requests`
 
 Acceptance criteria:
 
-* [ ] Registered team member can create support request.
-* [ ] Hackathon must be `IN_PROGRESS`.
-* [ ] Only assigned mentors can view support requests.
+* [x] Registered team member can create support request.
+* [x] Hackathon must be `IN_PROGRESS`.
+* [x] Only assigned mentors can view support requests.
 
 ---
 
