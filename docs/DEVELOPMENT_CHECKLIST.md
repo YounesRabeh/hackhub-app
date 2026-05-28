@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 16
+NEXT SECTION TO BE DONE: 17
 ---
 
 ## 1. Spring Boot Project Setup
@@ -484,21 +484,21 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `EvaluationService`
-* [ ] `EvaluationController`
+* [x] `EvaluationService`
+* [x] `EvaluationController`
 
 Endpoints:
 
-* [ ] `POST /api/submissions/{submissionId}/evaluation`
-* [ ] `GET /api/hackathons/{hackathonId}/evaluations`
+* [x] `POST /api/submissions/{submissionId}/evaluation`
+* [x] `GET /api/hackathons/{hackathonId}/evaluations`
 
 Acceptance criteria:
 
-* [ ] Only assigned judge can evaluate.
-* [ ] Evaluation only allowed in `EVALUATION`.
-* [ ] Score must be between 0 and 10.
-* [ ] Each submission has one evaluation.
-* [ ] Existing evaluation can be updated.
+* [x] Only assigned judge can evaluate.
+* [x] Evaluation only allowed in `EVALUATION`.
+* [x] Score must be between 0 and 10.
+* [x] Each submission has one evaluation.
+* [x] Existing evaluation can be updated.
 
 ---
 

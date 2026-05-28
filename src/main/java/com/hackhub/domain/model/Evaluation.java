@@ -12,9 +12,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "evaluations", uniqueConstraints = @UniqueConstraint(columnNames = {"submission_id"}))
+@Getter
+@Setter
 public class Evaluation {
 
 	@Id
