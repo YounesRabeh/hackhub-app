@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 3
+NEXT SECTION TO BE DONE: 4
 ---
 
 ## 1. Spring Boot Project Setup
@@ -83,11 +83,11 @@ Acceptance criteria:
 
 Create these enums:
 
-- [ ] `Role`
-- [ ] `HackathonStatus`
-- [ ] `InvitationStatus`
-- [ ] `SupportRequestStatus`
-- [ ] `PaymentStatus`
+- [x] `Role`
+- [x] `HackathonStatus`
+- [x] `InvitationStatus`
+- [x] `SupportRequestStatus`
+- [x] `PaymentStatus`
 
 Required values:
 
@@ -136,8 +136,8 @@ public enum PaymentStatus {
 
 Acceptance criteria:
 
-* [ ] All enums compile.
-* [ ] Enums are placed in `domain.enums`.
+* [x] All enums compile.
+* [x] Enums are placed in `domain.enums`.
 
 ---
 
