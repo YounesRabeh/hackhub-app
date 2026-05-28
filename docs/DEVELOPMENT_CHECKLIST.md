@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 7
+NEXT SECTION TO BE DONE: 8
 ---
 
 ## 1. Spring Boot Project Setup
@@ -250,27 +250,27 @@ Acceptance criteria:
 
 Create:
 
-* [ ] `ApiError`
-* [ ] `GlobalExceptionHandler`
-* [ ] `NotFoundException`
-* [ ] `ForbiddenException`
-* [ ] `BadRequestException`
-* [ ] `ConflictException`
+* [x] `ApiError`
+* [x] `GlobalExceptionHandler`
+* [x] `NotFoundException`
+* [x] `ForbiddenException`
+* [x] `BadRequestException`
+* [x] `ConflictException`
 
 Map errors:
 
-* [ ] `NotFoundException` -> 404
-* [ ] `ForbiddenException` -> 403
-* [ ] `BadRequestException` -> 400
-* [ ] `ConflictException` -> 409
-* [ ] Validation errors -> 400
-* [ ] Authentication errors -> 401
+* [x] `NotFoundException` -> 404
+* [x] `ForbiddenException` -> 403
+* [x] `BadRequestException` -> 400
+* [x] `ConflictException` -> 409
+* [x] Validation errors -> 400
+* [x] Authentication errors -> 401
 
 Acceptance criteria:
 
-* [ ] Errors return structured JSON.
-* [ ] Validation errors are readable.
-* [ ] Business errors are explicit.
+* [x] Errors return structured JSON.
+* [x] Validation errors are readable.
+* [x] Business errors are explicit.
 
 ---
 
