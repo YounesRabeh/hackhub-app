@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 6
+NEXT SECTION TO BE DONE: 7
 ---
 
 ## 1. Spring Boot Project Setup
@@ -203,46 +203,46 @@ Acceptance criteria:
 
 Create request DTOs:
 
-* [ ] `RegisterRequest`
-* [ ] `LoginRequest`
-* [ ] `CreateHackathonRequest`
-* [ ] `UpdateHackathonStatusRequest`
-* [ ] `CreateTeamRequest`
-* [ ] `CreateInvitationRequest`
-* [ ] `RegisterTeamToHackathonRequest`
-* [ ] `UpsertSubmissionRequest`
-* [ ] `CreateEvaluationRequest`
-* [ ] `CreateSupportRequestRequest`
-* [ ] `ProposeCallRequest`
-* [ ] `ReportViolationRequest`
-* [ ] `DeclareWinnerRequest`
+* [x] `RegisterRequest`
+* [x] `LoginRequest`
+* [x] `CreateHackathonRequest`
+* [x] `UpdateHackathonStatusRequest`
+* [x] `CreateTeamRequest`
+* [x] `CreateInvitationRequest`
+* [x] `RegisterTeamToHackathonRequest`
+* [x] `UpsertSubmissionRequest`
+* [x] `CreateEvaluationRequest`
+* [x] `CreateSupportRequestRequest`
+* [x] `ProposeCallRequest`
+* [x] `ReportViolationRequest`
+* [x] `DeclareWinnerRequest`
 
 Create response DTOs:
 
-* [ ] `AuthResponse`
-* [ ] `UserResponse`
-* [ ] `HackathonResponse`
-* [ ] `TeamResponse`
-* [ ] `InvitationResponse`
-* [ ] `SubmissionResponse`
-* [ ] `EvaluationResponse`
-* [ ] `SupportRequestResponse`
-* [ ] `CallProposalResponse`
-* [ ] `RuleViolationReportResponse`
-* [ ] `PaymentTransactionResponse`
+* [x] `AuthResponse`
+* [x] `UserResponse`
+* [x] `HackathonResponse`
+* [x] `TeamResponse`
+* [x] `InvitationResponse`
+* [x] `SubmissionResponse`
+* [x] `EvaluationResponse`
+* [x] `SupportRequestResponse`
+* [x] `CallProposalResponse`
+* [x] `RuleViolationReportResponse`
+* [x] `PaymentTransactionResponse`
 
 Create mappers:
 
-* [ ] `UserMapper`
-* [ ] `HackathonMapper`
-* [ ] `TeamMapper`
-* [ ] `SubmissionMapper`
+* [x] `UserMapper`
+* [x] `HackathonMapper`
+* [x] `TeamMapper`
+* [x] `SubmissionMapper`
 
 Acceptance criteria:
 
-* [ ] Controllers and services use DTOs.
-* [ ] Entities are not exposed directly.
-* [ ] Validation annotations are used.
+* [x] Controllers and services use DTOs.
+* [x] Entities are not exposed directly.
+* [x] Validation annotations are used.
 
 ---
 
