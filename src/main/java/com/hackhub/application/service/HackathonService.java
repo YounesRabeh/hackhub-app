@@ -84,8 +84,13 @@ public class HackathonService {
 
 	@Transactional
 	public HackathonResponse addMentor(Long hackathonId, Long mentorId) {
+		if (mentorId == null) {
+			throw new BadRequestException("Mentor id is required");
+		}
+
 		Hackathon hackathon = loadHackathon(hackathonId);
 		assertWriteAllowed(hackathon);
+
 		User currentUser = currentUser();
 		if (!hackathon.getOrganizer().getId().equals(currentUser.getId())) {
 			throw new ForbiddenException("Only the organizer can manage mentors");
@@ -94,6 +99,7 @@ public class HackathonService {
 		User mentor = userRepository
 			.findById(mentorId)
 			.orElseThrow(() -> new NotFoundException("Mentor not found"));
+
 		if (mentor.getRole() != Role.MENTOR) {
 			throw new BadRequestException("Assigned user must have role MENTOR");
 		}
@@ -101,7 +107,7 @@ public class HackathonService {
 		hackathon.getMentors().add(mentor);
 		return hackathonMapper.toResponse(hackathon);
 	}
-
+	
 	@Transactional
 	public HackathonResponse updateStatus(
 		Long hackathonId,
@@ -154,6 +160,10 @@ public class HackathonService {
 	}
 
 	private Hackathon loadHackathon(Long hackathonId) {
+		if (hackathonId == null) {
+			throw new BadRequestException("Hackathon id is required");
+		}
+
 		return hackathonRepository
 			.findById(hackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
