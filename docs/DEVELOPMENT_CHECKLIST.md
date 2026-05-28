@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 4
+NEXT SECTION TO BE DONE: 5
 ---
 
 ## 1. Spring Boot Project Setup
@@ -145,24 +145,24 @@ Acceptance criteria:
 
 Create these entities:
 
-* [ ] `User`
-* [ ] `Hackathon`
-* [ ] `Team`
-* [ ] `TeamInvitation`
-* [ ] `HackathonRegistration`
-* [ ] `Submission`
-* [ ] `Evaluation`
-* [ ] `SupportRequest`
-* [ ] `MentorCallProposal`
-* [ ] `RuleViolationReport`
-* [ ] `PaymentTransaction`
+* [x] `User`
+* [x] `Hackathon`
+* [x] `Team`
+* [x] `TeamInvitation`
+* [x] `HackathonRegistration`
+* [x] `Submission`
+* [x] `Evaluation`
+* [x] `SupportRequest`
+* [x] `MentorCallProposal`
+* [x] `RuleViolationReport`
+* [x] `PaymentTransaction`
 
 Acceptance criteria:
 
-* [ ] All entities compile.
-* [ ] Relationships are mapped correctly.
-* [ ] Unique constraints are added where needed.
-* [ ] No controller returns entities directly.
+* [x] All entities compile.
+* [x] Relationships are mapped correctly.
+* [x] Unique constraints are added where needed.
+* [x] No controller returns entities directly.
 
 ---
 
