@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 14
+NEXT SECTION TO BE DONE: 15
 ---
 
 ## 1. Spring Boot Project Setup
@@ -437,23 +437,23 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] Create or update own team submission.
-* [ ] Get own team submission.
-* [ ] Staff list submissions.
+* [x] Create or update own team submission.
+* [x] Get own team submission.
+* [x] Staff list submissions.
 
 Endpoints:
 
-* [ ] `PUT /api/hackathons/{hackathonId}/submissions/my-team`
-* [ ] `GET /api/hackathons/{hackathonId}/submissions/my-team`
-* [ ] `GET /api/hackathons/{hackathonId}/submissions`
+* [x] `PUT /api/hackathons/{hackathonId}/submissions/my-team`
+* [x] `GET /api/hackathons/{hackathonId}/submissions/my-team`
+* [x] `GET /api/hackathons/{hackathonId}/submissions`
 
 Acceptance criteria:
 
-* [ ] Registered team can submit during `IN_PROGRESS`.
-* [ ] Submission can be updated before deadline.
-* [ ] Submission cannot be updated after deadline.
-* [ ] Assigned staff can view submissions.
-* [ ] Unassigned staff cannot view submissions.
+* [x] Registered team can submit during `IN_PROGRESS`.
+* [x] Submission can be updated before deadline.
+* [x] Submission cannot be updated after deadline.
+* [x] Assigned staff can view submissions.
+* [x] Unassigned staff cannot view submissions.
 
 ---
 
