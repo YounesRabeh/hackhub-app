@@ -34,7 +34,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorize -> {
 				authorize.requestMatchers("/error").permitAll();
 				authorize.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll();
-				authorize.requestMatchers(HttpMethod.GET, "/api/hackathons/**").permitAll();
+				authorize.requestMatchers(HttpMethod.GET, "/api/hackathons", "/api/hackathons/*").permitAll();
 				if (environment.acceptsProfiles(Profiles.of("dev"))) {
 					authorize.requestMatchers("/h2-console/**").permitAll();
 					authorize.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();

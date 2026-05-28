@@ -60,6 +60,14 @@ public class HackathonController {
 		return hackathonService.addMentor(hackathonId, mentorId);
 	}
 
+	@PostMapping("/{hackathonId}/judges/{judgeId}")
+	public HackathonResponse addJudge(
+		@PathVariable Long hackathonId,
+		@PathVariable Long judgeId
+	) {
+		return hackathonService.addJudge(hackathonId, judgeId);
+	}
+
 	@PatchMapping("/{hackathonId}/status")
 	public HackathonResponse updateStatus(
 		@PathVariable Long hackathonId,

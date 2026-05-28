@@ -97,6 +97,32 @@ public class HackathonService {
 		hackathon.getMentors().add(mentor);
 		return hackathonMapper.toResponse(hackathon);
 	}
+
+	@Transactional
+	public HackathonResponse addJudge(Long hackathonId, Long judgeId) {
+		if (judgeId == null) {
+			throw new BadRequestException("Judge id is required");
+		}
+
+		Hackathon hackathon = loadHackathon(hackathonId);
+		assertWriteAllowed(hackathon);
+
+		User currentUser = currentUser();
+		if (!hackathon.getOrganizer().getId().equals(currentUser.getId())) {
+			throw new ForbiddenException("Only the organizer can manage judges");
+		}
+
+		User judge = userRepository
+			.findById(judgeId)
+			.orElseThrow(() -> new NotFoundException("Judge not found"));
+
+		if (judge.getRole() != Role.JUDGE) {
+			throw new BadRequestException("Assigned user must have role JUDGE");
+		}
+
+		hackathon.getJudges().add(judge);
+		return hackathonMapper.toResponse(hackathon);
+	}
 	
 	@Transactional
 	public HackathonResponse updateStatus(
