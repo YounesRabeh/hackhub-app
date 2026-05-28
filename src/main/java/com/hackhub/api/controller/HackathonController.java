@@ -1,6 +1,7 @@
 package com.hackhub.api.controller;
 
 import com.hackhub.api.dto.request.CreateHackathonRequest;
+import com.hackhub.api.dto.request.DeclareWinnerRequest;
 import com.hackhub.api.dto.request.RegisterTeamToHackathonRequest;
 import com.hackhub.api.dto.request.UpdateHackathonStatusRequest;
 import com.hackhub.api.dto.request.UpsertSubmissionRequest;
@@ -9,6 +10,7 @@ import com.hackhub.api.dto.response.HackathonResponse;
 import com.hackhub.api.dto.response.SubmissionResponse;
 import com.hackhub.application.service.HackathonRegistrationService;
 import com.hackhub.application.service.HackathonService;
+import com.hackhub.application.service.OrganizerService;
 import com.hackhub.application.service.SubmissionService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,6 +34,7 @@ public class HackathonController {
 	private final HackathonService hackathonService;
 	private final HackathonRegistrationService hackathonRegistrationService;
 	private final SubmissionService submissionService;
+	private final OrganizerService organizerService;
 
 	@GetMapping
 	public List<HackathonResponse> listHackathons() {
@@ -95,5 +98,13 @@ public class HackathonController {
 	@GetMapping("/{hackathonId}/submissions")
 	public List<SubmissionResponse> listSubmissions(@PathVariable Long hackathonId) {
 		return submissionService.listHackathonSubmissions(hackathonId);
+	}
+
+	@PostMapping("/{hackathonId}/winner")
+	public HackathonResponse declareWinner(
+		@PathVariable Long hackathonId,
+		@Valid @RequestBody DeclareWinnerRequest request
+	) {
+		return organizerService.declareWinner(hackathonId, request);
 	}
 }

@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 20
+NEXT SECTION TO BE DONE: 21
 ---
 
 ## 1. Spring Boot Project Setup
@@ -572,25 +572,25 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `OrganizerService`
-* [ ] Declare winner.
-* [ ] Validate all submissions evaluated.
-* [ ] Set winner team.
-* [ ] Set hackathon status to `FINISHED`.
+* [x] `OrganizerService`
+* [x] Declare winner.
+* [x] Validate all submissions evaluated.
+* [x] Set winner team.
+* [x] Set hackathon status to `FINISHED`.
 
 Endpoint:
 
-* [ ] `POST /api/hackathons/{hackathonId}/winner`
+* [x] `POST /api/hackathons/{hackathonId}/winner`
 
 Acceptance criteria:
 
-* [ ] Only organizer can declare winner.
-* [ ] Hackathon must be in `EVALUATION`.
-* [ ] Team must be registered.
-* [ ] Team must have a submission.
-* [ ] All submissions must be evaluated.
-* [ ] Winner cannot be declared twice.
-* [ ] Hackathon becomes `FINISHED`.
+* [x] Only organizer can declare winner.
+* [x] Hackathon must be in `EVALUATION`.
+* [x] Team must be registered.
+* [x] Team must have a submission.
+* [x] All submissions must be evaluated.
+* [x] Winner cannot be declared twice.
+* [x] Hackathon becomes `FINISHED`.
 
 ---
 
