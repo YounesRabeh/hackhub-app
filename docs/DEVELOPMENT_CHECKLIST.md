@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 19
+NEXT SECTION TO BE DONE: 20
 ---
 
 ## 1. Spring Boot Project Setup
@@ -552,19 +552,19 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] Create rule violation report.
-* [ ] Organizer list reports.
+* [x] Create rule violation report.
+* [x] Organizer list reports.
 
 Endpoints:
 
-* [ ] `POST /api/hackathons/{hackathonId}/rule-violations`
-* [ ] `GET /api/hackathons/{hackathonId}/rule-violations`
+* [x] `POST /api/hackathons/{hackathonId}/rule-violations`
+* [x] `GET /api/hackathons/{hackathonId}/rule-violations`
 
 Acceptance criteria:
 
-* [ ] Only assigned mentors can report violations.
-* [ ] Reported team must be registered to hackathon.
-* [ ] Only organizer can view reports.
+* [x] Only assigned mentors can report violations.
+* [x] Reported team must be registered to hackathon.
+* [x] Only organizer can view reports.
 
 ---
 
