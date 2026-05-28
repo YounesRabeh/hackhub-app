@@ -37,6 +37,7 @@ public class OrganizerService {
 	private final UserRepository userRepository;
 	private final StaffAccessService staffAccessService;
 	private final HackathonMapper hackathonMapper;
+	private final PaymentPrizeService paymentPrizeService;
 
 	@Transactional
 	public HackathonResponse declareWinner(Long hackathonId, DeclareWinnerRequest request) {
@@ -77,6 +78,7 @@ public class OrganizerService {
 
 		hackathon.setWinnerTeam(winnerTeam);
 		hackathon.setStatus(HackathonStatus.FINISHED);
+		paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
 		return hackathonMapper.toResponse(hackathonRepository.save(hackathon));
 	}
