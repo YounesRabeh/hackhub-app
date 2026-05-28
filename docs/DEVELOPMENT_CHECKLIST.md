@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 11
+NEXT SECTION TO BE DONE: 12
 ---
 
 ## 1. Spring Boot Project Setup
@@ -368,23 +368,23 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `TeamService`
-* [ ] `TeamController`
-* [ ] Create team.
-* [ ] Get current user team.
-* [ ] Validate one-team-only rule.
+* [x] `TeamService`
+* [x] `TeamController`
+* [x] Create team.
+* [x] Get current user team.
+* [x] Validate one-team-only rule.
 
 Endpoints:
 
-* [ ] `POST /api/teams`
-* [ ] `GET /api/teams/me`
+* [x] `POST /api/teams`
+* [x] `GET /api/teams/me`
 
 Acceptance criteria:
 
-* [ ] User can create a team.
-* [ ] Creator becomes first member.
-* [ ] User cannot create a second team.
-* [ ] User cannot belong to multiple teams.
+* [x] User can create a team.
+* [x] Creator becomes first member.
+* [x] User cannot create a second team.
+* [x] User cannot belong to multiple teams.
 
 ---
 

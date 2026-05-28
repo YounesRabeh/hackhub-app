@@ -36,4 +36,28 @@ public class Team {
 		inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
 	private Set<User> members = new HashSet<>();
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Set<User> getMembers() {
+		return members;
+	}
 }
