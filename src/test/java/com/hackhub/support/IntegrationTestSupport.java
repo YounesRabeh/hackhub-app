@@ -47,6 +47,26 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
+	protected ResultActions postJsonWithBearer(String uri, String token, Object body) throws Exception {
+		return mockMvc.perform(
+			MockMvcRequestBuilders
+				.post(uri)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(body))
+		);
+	}
+
+	protected ResultActions patchJsonWithBearer(String uri, String token, Object body) throws Exception {
+		return mockMvc.perform(
+			MockMvcRequestBuilders
+				.patch(uri)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(body))
+		);
+	}
+
 	protected String extractToken(MvcResult result) throws Exception {
 		JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
 		return json.path("token").asText();

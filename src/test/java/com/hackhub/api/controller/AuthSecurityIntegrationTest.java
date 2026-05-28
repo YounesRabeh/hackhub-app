@@ -80,7 +80,7 @@ class AuthSecurityIntegrationTest extends IntegrationTestSupport {
 
 	@Test
 	void unknownPublicHackathonRouteStaysPublicAndReturnsNotFound() throws Exception {
-		mockMvc.perform(get("/api/hackathons/not-implemented"))
+		mockMvc.perform(get("/api/hackathons/999999"))
 			.andExpect(status().isNotFound());
 	}
 }

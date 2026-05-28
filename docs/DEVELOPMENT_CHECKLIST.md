@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 9
+NEXT SECTION TO BE DONE: 10
 ---
 
 ## 1. Spring Boot Project Setup
@@ -311,30 +311,30 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `HackathonService`
-* [ ] `HackathonController`
-* [ ] Public hackathon listing.
-* [ ] Public hackathon detail.
-* [ ] Organizer hackathon creation.
-* [ ] Add mentor to hackathon.
-* [ ] Change hackathon status.
+* [x] `HackathonService`
+* [x] `HackathonController`
+* [x] Public hackathon listing.
+* [x] Public hackathon detail.
+* [x] Organizer hackathon creation.
+* [x] Add mentor to hackathon.
+* [x] Change hackathon status.
 
 Endpoints:
 
-* [ ] `GET /api/hackathons`
-* [ ] `GET /api/hackathons/{hackathonId}`
-* [ ] `POST /api/hackathons`
-* [ ] `POST /api/hackathons/{hackathonId}/mentors/{mentorId}`
-* [ ] `PATCH /api/hackathons/{hackathonId}/status`
+* [x] `GET /api/hackathons`
+* [x] `GET /api/hackathons/{hackathonId}`
+* [x] `POST /api/hackathons`
+* [x] `POST /api/hackathons/{hackathonId}/mentors/{mentorId}`
+* [x] `PATCH /api/hackathons/{hackathonId}/status`
 
 Acceptance criteria:
 
-* [ ] Visitors can browse hackathons.
-* [ ] Only organizers can create hackathons.
+* [x] Visitors can browse hackathons.
+* [x] Only organizers can create hackathons.
 * [ ] Judge must have role `JUDGE`.
-* [ ] Mentors must have role `MENTOR`.
-* [ ] Invalid dates are rejected.
-* [ ] Invalid status transitions are rejected.
+* [x] Mentors must have role `MENTOR`.
+* [x] Invalid dates are rejected.
+* [x] Invalid status transitions are rejected.
 
 ---
 
