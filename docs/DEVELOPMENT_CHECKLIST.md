@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 5
+NEXT SECTION TO BE DONE: 6
 ---
 
 ## 1. Spring Boot Project Setup
@@ -170,16 +170,16 @@ Acceptance criteria:
 
 Create repositories for:
 
-* [ ] `UserRepository`
-* [ ] `HackathonRepository`
-* [ ] `TeamRepository`
-* [ ] `TeamInvitationRepository`
-* [ ] `HackathonRegistrationRepository`
-* [ ] `SubmissionRepository`
-* [ ] `EvaluationRepository`
-* [ ] `SupportRequestRepository`
-* [ ] `RuleViolationReportRepository`
-* [ ] `PaymentTransactionRepository`
+* [x] `UserRepository`
+* [x] `HackathonRepository`
+* [x] `TeamRepository`
+* [x] `TeamInvitationRepository`
+* [x] `HackathonRegistrationRepository`
+* [x] `SubmissionRepository`
+* [x] `EvaluationRepository`
+* [x] `SupportRequestRepository`
+* [x] `RuleViolationReportRepository`
+* [x] `PaymentTransactionRepository`
 
 Important methods:
 
@@ -194,8 +194,8 @@ Optional<Evaluation> findBySubmission(Submission submission);
 
 Acceptance criteria:
 
-* [ ] Repositories compile.
-* [ ] App starts and creates schema.
+* [x] Repositories compile.
+* [x] App starts and creates schema.
 
 ---
 
