@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 2
+NEXT SECTION TO BE DONE: 3
 ---
 
 ## 1. Spring Boot Project Setup
@@ -58,24 +58,24 @@ Acceptance criteria:
 
 ## 2. Package Structure
 
-- [ ] Create `api.controller`.
-- [ ] Create `api.dto.request`.
-- [ ] Create `api.dto.response`.
-- [ ] Create `api.exception`.
-- [ ] Create `application.service`.
-- [ ] Create `application.mapper`.
-- [ ] Create `domain.model`.
-- [ ] Create `domain.enums`.
-- [ ] Create `domain.state`.
-- [ ] Create `infrastructure.repository`.
-- [ ] Create `infrastructure.external.calendar`.
-- [ ] Create `infrastructure.external.payment`.
-- [ ] Create `security`.
+- [x] Create `api.controller`.
+- [x] Create `api.dto.request`.
+- [x] Create `api.dto.response`.
+- [x] Create `api.exception`.
+- [x] Create `application.service`.
+- [x] Create `application.mapper`.
+- [x] Create `domain.model`.
+- [x] Create `domain.enums`.
+- [x] Create `domain.state`.
+- [x] Create `infrastructure.repository`.
+- [x] Create `infrastructure.external.calendar`.
+- [x] Create `infrastructure.external.payment`.
+- [x] Create `security`.
 
 Acceptance criteria:
 
-- [ ] Package structure matches the architecture.
-- [ ] Empty project still compiles.
+- [x] Package structure matches the architecture.
+- [x] Empty project still compiles.
 
 ---
 
