@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 21
+NEXT SECTION TO BE DONE: 23
 ---
 
 ## 1. Spring Boot Project Setup
@@ -598,19 +598,19 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `PaymentClient`
-* [ ] `FakePaymentClient`
-* [ ] `PaymentRequest`
-* [ ] `PaymentResponse`
-* [ ] `PaymentPrizeService`
+* [x] `PaymentClient`
+* [x] `FakePaymentClient`
+* [x] `PaymentRequest`
+* [x] `PaymentResponse`
+* [x] `PaymentPrizeService`
 
 Acceptance criteria:
 
-* [ ] Declaring winner triggers fake payment.
-* [ ] Payment transaction is created.
-* [ ] Payment transaction stores amount.
-* [ ] Payment transaction stores external payment id.
-* [ ] Strategy Pattern is documented.
+* [x] Declaring winner triggers fake payment.
+* [x] Payment transaction is created.
+* [x] Payment transaction stores amount.
+* [x] Payment transaction stores external payment id.
+* [x] Strategy Pattern is documented.
 
 ---
 
@@ -620,23 +620,23 @@ Create dev seed data.
 
 Users:
 
-* [ ] `organizer@example.com` with role `ORGANIZER`
-* [ ] `judge@example.com` with role `JUDGE`
-* [ ] `mentor1@example.com` with role `MENTOR`
-* [ ] `mentor2@example.com` with role `MENTOR`
-* [ ] `user1@example.com` with role `USER`
-* [ ] `user2@example.com` with role `USER`
-* [ ] `user3@example.com` with role `USER`
+* [x] `organizer@example.com` with role `ORGANIZER`
+* [x] `judge@example.com` with role `JUDGE`
+* [x] `mentor1@example.com` with role `MENTOR`
+* [x] `mentor2@example.com` with role `MENTOR`
+* [x] `user1@example.com` with role `USER`
+* [x] `user2@example.com` with role `USER`
+* [x] `user3@example.com` with role `USER`
 
 Optional:
 
-* [ ] Demo hackathon in `REGISTRATION_OPEN`.
+* [x] Demo hackathon in `REGISTRATION_OPEN`.
 
 Acceptance criteria:
 
-* [ ] Seed data loads only in dev profile.
-* [ ] Passwords are hashed.
-* [ ] Demo users can login.
+* [x] Seed data loads only in dev profile.
+* [x] Passwords are hashed.
+* [x] Demo users can login.
 
 ---
 
