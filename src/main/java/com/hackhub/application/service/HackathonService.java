@@ -11,6 +11,8 @@ import com.hackhub.domain.enums.HackathonStatus;
 import com.hackhub.domain.enums.Role;
 import com.hackhub.domain.model.Hackathon;
 import com.hackhub.domain.model.User;
+import com.hackhub.domain.state.HackathonState;
+import com.hackhub.domain.state.HackathonStateFactory;
 import com.hackhub.infrastructure.repository.HackathonRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -26,15 +28,18 @@ public class HackathonService {
 	private final HackathonRepository hackathonRepository;
 	private final UserRepository userRepository;
 	private final HackathonMapper hackathonMapper;
+	private final HackathonStateFactory hackathonStateFactory;
 
 	public HackathonService(
 		HackathonRepository hackathonRepository,
 		UserRepository userRepository,
-		HackathonMapper hackathonMapper
+		HackathonMapper hackathonMapper,
+		HackathonStateFactory hackathonStateFactory
 	) {
 		this.hackathonRepository = hackathonRepository;
 		this.userRepository = userRepository;
 		this.hackathonMapper = hackathonMapper;
+		this.hackathonStateFactory = hackathonStateFactory;
 	}
 
 	@Transactional(readOnly = true)
@@ -80,6 +85,7 @@ public class HackathonService {
 	@Transactional
 	public HackathonResponse addMentor(Long hackathonId, Long mentorId) {
 		Hackathon hackathon = loadHackathon(hackathonId);
+		assertWriteAllowed(hackathon);
 		User currentUser = currentUser();
 		if (!hackathon.getOrganizer().getId().equals(currentUser.getId())) {
 			throw new ForbiddenException("Only the organizer can manage mentors");
@@ -102,21 +108,49 @@ public class HackathonService {
 		UpdateHackathonStatusRequest request
 	) {
 		Hackathon hackathon = loadHackathon(hackathonId);
+		assertWriteAllowed(hackathon);
 		User currentUser = currentUser();
 		if (!hackathon.getOrganizer().getId().equals(currentUser.getId())) {
 			throw new ForbiddenException("Only the organizer can change hackathon status");
 		}
 
-		HackathonStatus currentStatus = hackathon.getStatus();
+		HackathonState state = hackathonStateFactory.fromStatus(hackathon.getStatus());
 		HackathonStatus nextStatus = request.status();
-		if (!isValidTransition(currentStatus, nextStatus)) {
+		if (!state.canTransitionTo(nextStatus)) {
 			throw new BadRequestException(
-				"Invalid status transition from " + currentStatus + " to " + nextStatus
+				"Invalid status transition from " + hackathon.getStatus() + " to " + nextStatus
 			);
 		}
 
 		hackathon.setStatus(nextStatus);
 		return hackathonMapper.toResponse(hackathon);
+	}
+
+	public void assertTeamRegistrationAllowed(Hackathon hackathon) {
+		HackathonState state = hackathonStateFactory.fromStatus(hackathon.getStatus());
+		if (!state.canRegisterTeam()) {
+			throw new BadRequestException(
+				"Team registration is not allowed in status " + hackathon.getStatus()
+			);
+		}
+	}
+
+	public void assertSubmissionAllowed(Hackathon hackathon) {
+		HackathonState state = hackathonStateFactory.fromStatus(hackathon.getStatus());
+		if (!state.canSubmit()) {
+			throw new BadRequestException(
+				"Submission is not allowed in status " + hackathon.getStatus()
+			);
+		}
+	}
+
+	public void assertEvaluationAllowed(Hackathon hackathon) {
+		HackathonState state = hackathonStateFactory.fromStatus(hackathon.getStatus());
+		if (!state.canEvaluate()) {
+			throw new BadRequestException(
+				"Evaluation is not allowed in status " + hackathon.getStatus()
+			);
+		}
 	}
 
 	private Hackathon loadHackathon(Long hackathonId) {
@@ -153,16 +187,12 @@ public class HackathonService {
 		}
 	}
 
-	private boolean isValidTransition(HackathonStatus current, HackathonStatus next) {
-		if (current == next) {
-			return true;
+	private void assertWriteAllowed(Hackathon hackathon) {
+		HackathonState state = hackathonStateFactory.fromStatus(hackathon.getStatus());
+		if (!state.allowsWriteOperations()) {
+			throw new BadRequestException(
+				"Write operations are not allowed when hackathon is " + hackathon.getStatus()
+			);
 		}
-
-		return switch (current) {
-			case REGISTRATION_OPEN -> next == HackathonStatus.IN_PROGRESS;
-			case IN_PROGRESS -> next == HackathonStatus.EVALUATION;
-			case EVALUATION -> next == HackathonStatus.FINISHED;
-			case FINISHED -> false;
-		};
 	}
 }

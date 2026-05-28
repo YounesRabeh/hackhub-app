@@ -88,6 +88,41 @@ class HackathonCoreIntegrationTest extends IntegrationTestSupport {
 			);
 	}
 
+	@Test
+	void finishedHackathonRejectsWriteOperations() throws Exception {
+		String organizerToken = tokenForRole(Role.ORGANIZER);
+		Long hackathonId = createHackathon(organizerToken);
+		User mentor = userWithRole(Role.MENTOR);
+
+		patchJsonWithBearer(
+			"/api/hackathons/" + hackathonId + "/status",
+			organizerToken,
+			Map.of("status", "IN_PROGRESS")
+		).andExpect(status().isOk());
+		patchJsonWithBearer(
+			"/api/hackathons/" + hackathonId + "/status",
+			organizerToken,
+			Map.of("status", "EVALUATION")
+		).andExpect(status().isOk());
+		patchJsonWithBearer(
+			"/api/hackathons/" + hackathonId + "/status",
+			organizerToken,
+			Map.of("status", "FINISHED")
+		).andExpect(status().isOk());
+
+		postJsonWithBearer(
+			"/api/hackathons/" + hackathonId + "/mentors/" + mentor.getId(),
+			organizerToken,
+			Map.of()
+		)
+			.andExpect(status().isBadRequest())
+			.andExpect(
+				jsonPath("$.message").value(
+					"Write operations are not allowed when hackathon is FINISHED"
+				)
+			);
+	}
+
 	private Map<String, Object> validHackathonPayload() {
 		LocalDateTime now = LocalDateTime.now().plusDays(2);
 		return Map.of(

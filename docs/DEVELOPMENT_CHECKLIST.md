@@ -23,7 +23,7 @@
 -  Update the 'NEXT SECTION TO BE DONE' at each finished section to keep track 
 
 //Codex-variable:
-NEXT SECTION TO BE DONE: 10
+NEXT SECTION TO BE DONE: 11
 ---
 
 ## 1. Spring Boot Project Setup
@@ -342,25 +342,25 @@ Acceptance criteria:
 
 Implement:
 
-* [ ] `HackathonState`
-* [ ] `RegistrationOpenState`
-* [ ] `InProgressState`
-* [ ] `EvaluationState`
-* [ ] `FinishedState`
-* [ ] `HackathonStateFactory`
+* [x] `HackathonState`
+* [x] `RegistrationOpenState`
+* [x] `InProgressState`
+* [x] `EvaluationState`
+* [x] `FinishedState`
+* [x] `HackathonStateFactory`
 
 Rules:
 
-* [ ] `REGISTRATION_OPEN` allows team registration.
-* [ ] `IN_PROGRESS` allows submissions.
-* [ ] `EVALUATION` allows evaluations and winner declaration.
-* [ ] `FINISHED` rejects write operations.
+* [x] `REGISTRATION_OPEN` allows team registration.
+* [x] `IN_PROGRESS` allows submissions.
+* [x] `EVALUATION` allows evaluations and winner declaration.
+* [x] `FINISHED` rejects write operations.
 
 Acceptance criteria:
 
-* [ ] State Pattern is used by services.
-* [ ] README documents the pattern.
-* [ ] Invalid lifecycle actions are rejected.
+* [x] State Pattern is used by services.
+* [x] README documents the pattern.
+* [x] Invalid lifecycle actions are rejected.
 
 ---
 
