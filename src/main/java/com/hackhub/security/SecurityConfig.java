@@ -17,6 +17,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configures Spring Security for the HackHub application.
+ *
+ * <p>This configuration defines authentication and authorization rules,
+ * disables stateful login mechanisms, registers JWT-based authentication,
+ * and exposes security-related beans used by the application.</p>
+ *
+ * <p>The application uses stateless authentication, meaning each protected
+ * request must provide a valid JWT instead of relying on server-side sessions.</p>
+ */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -24,6 +34,18 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final Environment environment;
 
+	/**
+	 * Configures the HTTP security filter chain.
+	 *
+	 * <p>This method defines which endpoints are publicly accessible and which
+	 * require authentication. Public endpoints include authentication routes,
+	 * public hackathon listing routes, and development-only tools such as the
+	 * H2 console and Swagger UI when the {@code dev} profile is active.</p>
+	 *
+	 * @param http the HTTP security configuration object
+	 * @return the configured security filter chain
+	 * @throws Exception if the security configuration cannot be built
+	 */
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
@@ -48,11 +70,26 @@ public class SecurityConfig {
 		return http.build();
 	}
 
+	/**
+	 * Provides the password encoder used to hash and verify user passwords.
+	 *
+	 * @return a BCrypt-based password encoder
+	 */
 	@Bean
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	/**
+	 * Exposes Spring Security's authentication manager.
+	 *
+	 * <p>The authentication manager is used by authentication services to
+	 * validate user credentials during login.</p>
+	 *
+	 * @param configuration the Spring Security authentication configuration
+	 * @return the configured authentication manager
+	 * @throws Exception if the authentication manager cannot be obtained
+	 */
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
 		throws Exception {
