@@ -3,6 +3,8 @@ package com.hackhub.api.controller;
 import com.hackhub.api.dto.request.CreateEvaluationRequest;
 import com.hackhub.api.dto.response.EvaluationResponse;
 import com.hackhub.application.service.EvaluationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(
+	name = "Evaluations",
+	description = "Score submissions and review evaluation results for a hackathon."
+)
 public class EvaluationController {
 
 	private final EvaluationService evaluationService;
 
 	@PostMapping("/api/submissions/{submissionId}/evaluation")
+	@Operation(
+		summary = "Evaluate submission",
+		description = "Use case: an assigned judge scores a submission and adds evaluation feedback."
+	)
 	public EvaluationResponse evaluateSubmission(
 		@PathVariable Long submissionId,
 		@Valid @RequestBody CreateEvaluationRequest request
@@ -27,6 +37,10 @@ public class EvaluationController {
 	}
 
 	@GetMapping("/api/hackathons/{hackathonId}/evaluations")
+	@Operation(
+		summary = "List hackathon evaluations",
+		description = "Use case: staff review all evaluation records linked to a hackathon."
+	)
 	public List<EvaluationResponse> listHackathonEvaluations(@PathVariable Long hackathonId) {
 		return evaluationService.listHackathonEvaluations(hackathonId);
 	}
