@@ -1,43 +1,70 @@
+/*
+ * Gradle build configuration for the HackHub backend.
+ *
+ * This file defines the project metadata, Java version, dependency
+ * management, application dependencies, and test configuration.
+ */
+
 plugins {
+	// Enables Java compilation and testing support.
 	id 'java'
+	// Adds Spring Boot build and packaging support.
 	id 'org.springframework.boot' version '3.5.14'
+	// Imports Spring's managed dependency versions.
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.hackhub'
-version = '0.0.1-SNAPSHOT'
-description = 'HackHub backend'
+version = '0.8.0'
+description = 'HackHub - Hackathon Management Platform'
 
 java {
 	toolchain {
+		// Java version used to compile and run the project.
 		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
 
 repositories {
+	// Main public repository used to resolve dependencies.
 	mavenCentral()
 }
 
 dependencies {
+	// Persistence layer support with JPA and Hibernate.
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// Authentication and authorization support.
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// Bean validation support for DTOs and request bodies.
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// REST API and embedded web server support.
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Swagger UI and OpenAPI documentation.
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+	// Lombok annotations available only at compile time.
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	// JWT API used by the security layer.
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.7'
+	// JWT runtime implementations.
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.7'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.7'
+	// In-memory database used for development and testing.
 	runtimeOnly 'com.h2database:h2'
+	// PostgreSQL driver for production or external database usage.
 	runtimeOnly 'org.postgresql:postgresql'
+	// Spring Boot testing utilities.
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// Spring Security testing utilities.
 	testImplementation 'org.springframework.security:spring-security-test'
+	// Lombok support for test sources.
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+	// JUnit Platform launcher used at test runtime.
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
+	// Enables JUnit 5 test execution.
 	useJUnitPlatform()
 }
