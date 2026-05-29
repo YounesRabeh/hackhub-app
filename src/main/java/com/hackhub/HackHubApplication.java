@@ -45,7 +45,11 @@ public class HackHubApplication {
 		String port = env.getProperty("server.port", "8080");
 		String contextPath = env.getProperty("server.servlet.context-path", "");
 		String baseUrl = "http://localhost:" + port + contextPath;
-
+		String swaggerPath = env.getProperty(
+			"springdoc.swagger-ui.path",
+			"/swagger-ui.html"
+		);
+		String swaggerUrl = baseUrl + swaggerPath;
 		LOGGER.info("""
 				
 			==================================================
@@ -53,8 +57,9 @@ public class HackHubApplication {
 			Website:     {}
 			H2 Console:   {}
 			API Base URL: {}
+			Swagger UI:   {}
 			==================================================
-			""", baseUrl, baseUrl + "/h2-console", baseUrl + "/api"
+			""", baseUrl, baseUrl + "/h2-console", baseUrl + "/api", swaggerUrl
 		);
 	}
 }
