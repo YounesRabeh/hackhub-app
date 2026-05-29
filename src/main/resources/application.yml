@@ -1,38 +1,87 @@
+# ============================================================
+# HackHub Application Configuration
+#
+# Default configuration used in all environments.
+# Development-specific overrides are defined in the
+# profile section at the bottom of this file.
+# ============================================================
+
+# Disable Spring Boot diagnostic startup output.
 debug: false
 
 spring:
+
   application:
+    # Application identifier used by Spring Boot.
     name: HackHub
+
   datasource:
+    # In-memory H2 database.
+    # Suitable for development and testing because no
+    # external database installation is required.
     url: jdbc:h2:mem:hackhub
+
     driver-class-name: org.h2.Driver
     username: sa
     password:
+
   h2:
     console:
+      # Disabled by default for security reasons.
+      # Enabled only in the development profile.
       enabled: false
+
+      # URL used to access the H2 administration console.
       path: /h2-console
+
   jpa:
     hibernate:
+      # Automatically synchronizes the database schema
+      # with the JPA entity model.
       ddl-auto: update
+
+    # Prevents database access during view rendering,
+    # encouraging proper transaction boundaries.
     open-in-view: false
+
 springdoc:
   api-docs:
+    # OpenAPI specification endpoint.
+    # Disabled outside development environments.
     enabled: false
     path: /v3/api-docs
+
   swagger-ui:
+    # Interactive API documentation UI.
+    # Disabled outside development environments.
     enabled: false
     path: /swagger-ui.html
 
 app:
   security:
     jwt:
+      # Secret key used to sign and validate JWT tokens.
+      # Must be kept private and replaced in production.
       secret: MDEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkNERUY=
+
+      # Token lifetime expressed in milliseconds.
+      # Current value corresponds to 24 hours.
       expiration-ms: 86400000
 
 logging:
   level:
+    # Default application logging level.
     root: INFO
+
+# ============================================================
+# Development Profile
+#
+# Activated when:
+#   spring.profiles.active=dev
+#
+# Enables development tools that should not be exposed
+# in production environments.
+# ============================================================
 
 ---
 
@@ -40,13 +89,21 @@ spring:
   config:
     activate:
       on-profile: dev
+
   datasource:
+    # Dedicated development database.
     url: jdbc:h2:mem:hackhub-dev
+
   h2:
     console:
+      # Enable browser-based database inspection.
       enabled: true
+
 springdoc:
   api-docs:
+    # Enable OpenAPI specification generation.
     enabled: true
+
   swagger-ui:
+    # Enable Swagger interactive documentation.
     enabled: true
