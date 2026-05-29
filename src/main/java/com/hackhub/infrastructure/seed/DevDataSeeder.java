@@ -15,17 +15,44 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Seeds the database with demo data for local development environments.
+ *
+ * <p>This component is executed automatically at application startup when the
+ * {@code dev} Spring profile is active. It creates a predefined set of users
+ * with different roles and a sample hackathon to simplify development,
+ * testing, and demonstrations.</p>
+ *
+ * <p>The seeding process is idempotent: existing users and hackathons are not
+ * recreated if they are already present in the database.</p>
+ *
+ * <p>All seeded users share the same demo password, which is encoded using the
+ * configured {@link PasswordEncoder} before being persisted.</p>
+ */
 @Component
 @Profile("dev")
 @RequiredArgsConstructor
 public class DevDataSeeder implements CommandLineRunner {
 
+	/**
+	 * Plain-text password assigned to all seeded demo users.
+	 */
 	private static final String DEMO_PASSWORD = "Password123!";
 
 	private final UserRepository userRepository;
 	private final HackathonRepository hackathonRepository;
 	private final PasswordEncoder passwordEncoder;
 
+
+	/**
+	 * Executes the development data seeding process.
+	 *
+	 * <p>Creates a predefined set of demo users if they do not already exist
+	 * and creates a sample hackathon if the database does not contain any
+	 * hackathons.</p>
+	 *
+	 * @param args application startup arguments
+	 */	
 	@Override
 	public void run(String... args) {
 		Map<String, Role> users = Map.ofEntries(
@@ -42,6 +69,13 @@ public class DevDataSeeder implements CommandLineRunner {
 		seedDemoHackathonIfMissing();
 	}
 
+	/**
+	 * Creates a demo user with the specified email and role if no user with
+	 * the same email already exists.
+	 *
+	 * @param email the email address of the user to create
+	 * @param role the role assigned to the user
+	 */
 	private void seedUserIfMissing(String email, Role role) {
 		if (userRepository.existsByEmail(email)) {
 			return;
@@ -54,6 +88,14 @@ public class DevDataSeeder implements CommandLineRunner {
 		userRepository.save(user);
 	}
 
+	/**
+	 * Creates a sample hackathon if no hackathons currently exist in the
+	 * database.
+	 *
+	 * <p>The hackathon is associated with the seeded organizer account and is
+	 * initialized in the {@link HackathonStatus#REGISTRATION_OPEN} state with
+	 * dates relative to the current application startup time.</p>
+	 */
 	private void seedDemoHackathonIfMissing() {
 		if (hackathonRepository.count() > 0) {
 			return;
