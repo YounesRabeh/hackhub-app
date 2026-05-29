@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 
 /**
  * Main entry point of the HackHub application.
@@ -24,7 +25,6 @@ import org.springframework.core.env.Environment;
  */
 @SpringBootApplication
 public class HackHubApplication {
-
 	/**
 	 * Logger used to output application startup information.
 	 */
@@ -50,16 +50,19 @@ public class HackHubApplication {
 			"/swagger-ui.html"
 		);
 		String swaggerUrl = baseUrl + swaggerPath;
+		String statusLine = env.acceptsProfiles(Profiles.of("dev"))
+			? "HackHub is running in DEV mode!"
+			: "HackHub is running!";
 		LOGGER.info("""
-				
+
 			==================================================
-			HackHub is running!
-			Website:     {}
+			{}
+			Website:      {}
 			H2 Console:   {}
 			API Base URL: {}
 			Swagger UI:   {}
 			==================================================
-			""", baseUrl, baseUrl + "/h2-console", baseUrl + "/api", swaggerUrl
+			""", statusLine, baseUrl, baseUrl + "/h2-console", baseUrl + "/api", swaggerUrl
 		);
 	}
 }

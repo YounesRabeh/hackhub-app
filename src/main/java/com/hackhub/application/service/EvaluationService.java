@@ -14,6 +14,7 @@ import com.hackhub.infrastructure.repository.SubmissionRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,9 +37,18 @@ public class EvaluationService {
 		Long submissionId,
 		CreateEvaluationRequest request
 	) {
+		Long requiredSubmissionId = Objects.requireNonNull(
+			submissionId,
+			"submissionId must not be null"
+		);
+		CreateEvaluationRequest requiredRequest = Objects.requireNonNull(
+			request,
+			"request must not be null"
+		);
+
 		User currentUser = currentUser();
 		Submission submission = submissionRepository
-			.findById(submissionId)
+			.findById(requiredSubmissionId)
 			.orElseThrow(() -> new NotFoundException("Submission not found"));
 		Hackathon hackathon = submission.getHackathon();
 
@@ -54,8 +64,12 @@ public class EvaluationService {
 
 		evaluation.setSubmission(submission);
 		evaluation.setJudge(currentUser);
-		evaluation.setScore(request.score());
-		evaluation.setComment(request.comment().trim());
+		evaluation.setScore(
+			Objects.requireNonNull(requiredRequest.score(), "score must not be null")
+		);
+		evaluation.setComment(
+			Objects.requireNonNull(requiredRequest.comment(), "comment must not be null").trim()
+		);
 		evaluation.setEvaluatedAt(LocalDateTime.now());
 
 		return toResponse(evaluationRepository.save(evaluation));
@@ -63,9 +77,13 @@ public class EvaluationService {
 
 	@Transactional(readOnly = true)
 	public List<EvaluationResponse> listHackathonEvaluations(Long hackathonId) {
+		Long requiredHackathonId = Objects.requireNonNull(
+			hackathonId,
+			"hackathonId must not be null"
+		);
 		User currentUser = currentUser();
 		Hackathon hackathon = hackathonRepository
-			.findById(hackathonId)
+			.findById(requiredHackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
 
 		if (!staffAccessService.canAccessSubmissions(currentUser, hackathon)) {
