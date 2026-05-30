@@ -12,8 +12,18 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the main hackathon HTTP workflow.
+ *
+ * <p>This test verifies the complete flow from hackathon creation,
+ * team creation, invitation acceptance, registration, judge assignment,
+ * submission, evaluation, and winner selection.</p>
+ */
 class HackathonHttpFlowIntegrationTest extends IntegrationTestSupport {
 
+	/**
+	 * Verifies that the main hackathon flow works correctly through HTTP endpoints.
+	*/
 	@Test
 	void mainHackathonFlowWorksThroughHttp() throws Exception {
 		User organizer = saveUser(Role.ORGANIZER);
@@ -117,6 +127,9 @@ class HackathonHttpFlowIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.status").value("FINISHED"));
 	}
 
+	/**
+	 * Verifies that unauthenticated and unauthorized users are rejected.
+	*/
 	@Test
 	void securityRejectsUnauthorizedAndForbiddenRequests() throws Exception {
 		User user = saveUser(Role.USER);
@@ -132,6 +145,9 @@ class HackathonHttpFlowIntegrationTest extends IntegrationTestSupport {
 			.andExpect(status().isUnauthorized());
 	}
 
+	/**
+	 * Verifies that only users with the JUDGE role can be assigned as judges.
+	*/
 	@Test
 	void judgeAssignmentRejectsUsersWithoutJudgeRole() throws Exception {
 		User organizer = saveUser(Role.ORGANIZER);

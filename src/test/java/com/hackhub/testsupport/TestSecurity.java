@@ -4,18 +4,29 @@ import com.hackhub.domain.model.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Utility methods for configuring Spring Security authentication in tests.
+ */
 public final class TestSecurity {
 
-	private TestSecurity() {
-	}
+    private TestSecurity() {
+    }
 
-	public static void authenticateAs(User user) {
-		SecurityContextHolder
-			.getContext()
-			.setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), null));
-	}
+    /**
+     * Authenticates the current test security context as the given user.
+     *
+     * @param user user to authenticate as
+     */
+    public static void authenticateAs(User user) {
+        SecurityContextHolder
+            .getContext()
+            .setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), null));
+    }
 
-	public static void clear() {
-		SecurityContextHolder.clearContext();
-	}
+    /**
+     * Clears the current test security context.
+     */
+    public static void clear() {
+        SecurityContextHolder.clearContext();
+    }
 }
