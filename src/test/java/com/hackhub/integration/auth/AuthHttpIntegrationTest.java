@@ -5,6 +5,8 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,5 +45,49 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 		getWithBearer("/api/auth/me", extractToken(registration))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.email").value(email));
+	}
+
+	@Test
+	void registerRejectsDuplicateEmailEvenWithDifferentCase() throws Exception {
+		String email = "Dup+" + System.nanoTime() + "@Example.com";
+
+		postJson("/api/auth/register", registerPayload(email, PASSWORD))
+			.andExpect(status().isCreated());
+
+		postJson("/api/auth/register", registerPayload(email.toLowerCase(Locale.ROOT), PASSWORD))
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("$.message").value("Email is already registered"));
+	}
+
+	@Test
+	void loginRejectsWrongPassword() throws Exception {
+		String email = uniqueEmail();
+		postJson("/api/auth/register", registerPayload(email, PASSWORD))
+			.andExpect(status().isCreated());
+
+		postJson("/api/auth/login", loginPayload(email, "WrongPassword123!"))
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("$.message").value("Authentication failed"));
+	}
+
+	@Test
+	void registerRejectsInvalidPayload() throws Exception {
+		postJson("/api/auth/register", registerPayload("not-an-email", "short"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Validation failed"))
+			.andExpect(jsonPath("$.details", hasItem(containsString("email"))))
+			.andExpect(jsonPath("$.details", hasItem(containsString("password"))));
+	}
+
+	@Test
+	void loginAcceptsEmailWithDifferentCase() throws Exception {
+		String email = "Case+" + System.nanoTime() + "@Example.com";
+		postJson("/api/auth/register", registerPayload(email, PASSWORD))
+			.andExpect(status().isCreated());
+
+		postJson("/api/auth/login", loginPayload(email.toUpperCase(Locale.ROOT), PASSWORD))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.user.email").value(email.toLowerCase(Locale.ROOT)))
+			.andExpect(jsonPath("$.token").isString());
 	}
 }
