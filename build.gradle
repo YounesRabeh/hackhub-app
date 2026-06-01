@@ -68,3 +68,54 @@ tasks.named('test') {
 	// Enables JUnit 5 test execution.
 	useJUnitPlatform()
 }
+
+tasks.register('cov', Test) {
+	group = 'verification'
+	description = 'Runs endpoint coverage integration test with threshold enforcement.'
+
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+
+	filter {
+		includeTestsMatching 'com.hackhub.integration.coverage.EndpointCoverageIntegrationTest'
+	}
+
+	// Default threshold is 80 unless overridden at runtime.
+	systemProperty 'endpoint.coverage.threshold', System.getProperty(
+		'endpoint.coverage.threshold',
+		'80'
+	)
+
+	// Always run so the latest endpoint coverage is recalculated every time.
+	outputs.upToDateWhen { false }
+
+	testLogging {
+		events 'passed', 'skipped', 'failed'
+	}
+
+	doLast {
+		def reportFile = file(
+			"$buildDir/test-results/cov/TEST-com.hackhub.integration.coverage.EndpointCoverageIntegrationTest.xml"
+		)
+		if (!reportFile.exists()) {
+			println 'Endpoint coverage result not found.'
+			return
+		}
+
+		def coverageLine = reportFile
+			.readLines()
+			.find { line -> line.contains('Endpoint coverage:') }
+
+		if (coverageLine == null) {
+			println 'Endpoint coverage line not found in test report.'
+			return
+		}
+
+		def normalizedLine = coverageLine
+			.replaceAll('^.*Endpoint coverage:', 'Endpoint coverage:')
+			.replaceAll('<.*$', '')
+			.trim()
+		println normalizedLine
+	}
+}

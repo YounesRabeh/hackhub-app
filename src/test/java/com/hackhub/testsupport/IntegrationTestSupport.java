@@ -6,6 +6,7 @@ import com.hackhub.domain.enums.Role;
 import com.hackhub.domain.model.Hackathon;
 import com.hackhub.domain.model.Team;
 import com.hackhub.domain.model.User;
+import com.hackhub.testsupport.coverage.EndpointCoverageTestConfiguration;
 import com.hackhub.infrastructure.repository.HackathonRepository;
 import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(EndpointCoverageTestConfiguration.class)
 public abstract class IntegrationTestSupport {
 
 	protected static final String PASSWORD = "Password123!";

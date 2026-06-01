@@ -37,3 +37,32 @@ Password: *(empty)*
 ```bash
 ./gradlew test
 ```
+
+## Endpoint Coverage Check
+
+This project includes an integration test that tracks which API endpoints are hit and validates coverage against a threshold.
+
+Run only endpoint coverage test:
+
+```bash
+./gradlew cov
+```
+
+This command prints a summary like:
+`Endpoint coverage: X/Y (Z%) - threshold N%`
+
+Set custom threshold (default is `80`):
+
+```bash
+./gradlew cov -Dendpoint.coverage.threshold=90
+```
+
+How to check the result:
+- The test logs a line like: `Endpoint coverage: X/Y (Z%) - threshold N%`
+- Detailed test result file:
+  - `build/test-results/test/TEST-com.hackhub.integration.coverage.EndpointCoverageIntegrationTest.xml`
+- Quick terminal check:
+
+```bash
+rg "Endpoint coverage:" build/test-results/test/TEST-com.hackhub.integration.coverage.EndpointCoverageIntegrationTest.xml
+```
