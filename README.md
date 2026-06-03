@@ -1,4 +1,4 @@
-# HackHub Backend
+# HackHub App
 
 Basic Spring Boot backend for the HackHub hackathon platform.
 
