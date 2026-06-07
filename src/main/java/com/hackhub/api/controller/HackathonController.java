@@ -13,6 +13,7 @@ import com.hackhub.application.service.HackathonService;
 import com.hackhub.application.service.OrganizerService;
 import com.hackhub.application.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -56,7 +57,10 @@ public class HackathonController {
 		summary = "Get hackathon details",
 		description = "Use case: a user opens one hackathon page and needs full details by id."
 	)
-	public HackathonResponse getHackathon(@PathVariable Long hackathonId) {
+	public HackathonResponse getHackathon(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return hackathonService.getHackathon(hackathonId);
 	}
 
@@ -76,8 +80,10 @@ public class HackathonController {
 		description = "Use case: an organizer assigns a mentor so they can support participating teams."
 	)
 	public HackathonResponse addMentor(
-		@PathVariable Long hackathonId,
-		@PathVariable Long mentorId
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
+		@Parameter(description = "Mentor user ID", example = "3")
+		@PathVariable("mentorId") Long mentorId
 	) {
 		return hackathonService.addMentor(hackathonId, mentorId);
 	}
@@ -88,8 +94,10 @@ public class HackathonController {
 		description = "Use case: an organizer assigns a judge who can score submissions during evaluation."
 	)
 	public HackathonResponse addJudge(
-		@PathVariable Long hackathonId,
-		@PathVariable Long judgeId
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
+		@Parameter(description = "Judge user ID", example = "2")
+		@PathVariable("judgeId") Long judgeId
 	) {
 		return hackathonService.addJudge(hackathonId, judgeId);
 	}
@@ -100,7 +108,8 @@ public class HackathonController {
 		description = "Use case: staff transitions the hackathon lifecycle (registration, in-progress, evaluation, finished)."
 	)
 	public HackathonResponse updateStatus(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody UpdateHackathonStatusRequest request
 	) {
 		return hackathonService.updateStatus(hackathonId, request);
@@ -113,7 +122,8 @@ public class HackathonController {
 		description = "Use case: a team signs up to participate in a specific hackathon."
 	)
 	public HackathonRegistrationResponse registerTeam(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody RegisterTeamToHackathonRequest request
 	) {
 		return hackathonRegistrationService.registerTeam(hackathonId, request);
@@ -124,7 +134,10 @@ public class HackathonController {
 		summary = "List hackathon registrations",
 		description = "Use case: organizers review all teams registered for a hackathon."
 	)
-	public List<HackathonRegistrationResponse> listRegistrations(@PathVariable Long hackathonId) {
+	public List<HackathonRegistrationResponse> listRegistrations(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return hackathonRegistrationService.listRegistrations(hackathonId);
 	}
 
@@ -134,7 +147,8 @@ public class HackathonController {
 		description = "Use case: a team submits or edits their project deliverables for a hackathon."
 	)
 	public SubmissionResponse upsertMyTeamSubmission(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody UpsertSubmissionRequest request
 	) {
 		return submissionService.upsertMyTeamSubmission(hackathonId, request);
@@ -145,7 +159,10 @@ public class HackathonController {
 		summary = "Get my team submission",
 		description = "Use case: a team views its current submission for a hackathon."
 	)
-	public SubmissionResponse getMyTeamSubmission(@PathVariable Long hackathonId) {
+	public SubmissionResponse getMyTeamSubmission(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return submissionService.getMyTeamSubmission(hackathonId);
 	}
 
@@ -154,7 +171,10 @@ public class HackathonController {
 		summary = "List hackathon submissions",
 		description = "Use case: assigned mentors or judges review all submissions in a hackathon."
 	)
-	public List<SubmissionResponse> listSubmissions(@PathVariable Long hackathonId) {
+	public List<SubmissionResponse> listSubmissions(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return submissionService.listHackathonSubmissions(hackathonId);
 	}
 
@@ -164,7 +184,8 @@ public class HackathonController {
 		description = "Use case: an organizer sets the winning team after evaluation is completed."
 	)
 	public HackathonResponse declareWinner(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody DeclareWinnerRequest request
 	) {
 		return organizerService.declareWinner(hackathonId, request);

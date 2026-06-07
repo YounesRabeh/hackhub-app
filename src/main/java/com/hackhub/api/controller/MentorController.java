@@ -6,6 +6,7 @@ import com.hackhub.api.dto.response.CallProposalResponse;
 import com.hackhub.api.dto.response.SupportRequestResponse;
 import com.hackhub.application.service.MentorService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -35,7 +36,8 @@ public class MentorController {
 		description = "Use case: a team asks mentors for help on blockers encountered during a hackathon."
 	)
 	public SupportRequestResponse createSupportRequest(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody CreateSupportRequestRequest request
 	) {
 		return mentorService.createSupportRequest(hackathonId, request);
@@ -46,7 +48,10 @@ public class MentorController {
 		summary = "List support requests",
 		description = "Use case: mentors and staff review all support requests for a specific hackathon."
 	)
-	public List<SupportRequestResponse> listSupportRequests(@PathVariable Long hackathonId) {
+	public List<SupportRequestResponse> listSupportRequests(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return mentorService.listSupportRequests(hackathonId);
 	}
 
@@ -56,7 +61,8 @@ public class MentorController {
 		description = "Use case: a mentor proposes a call slot to handle a support request in real time."
 	)
 	public CallProposalResponse proposeCall(
-		@PathVariable Long supportRequestId,
+		@Parameter(description = "Support request ID", example = "1")
+		@PathVariable("supportRequestId") Long supportRequestId,
 		@Valid @RequestBody ProposeCallRequest request
 	) {
 		return mentorService.proposeCall(supportRequestId, request);

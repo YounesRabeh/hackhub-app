@@ -4,6 +4,7 @@ import com.hackhub.api.dto.request.CreateInvitationRequest;
 import com.hackhub.api.dto.response.InvitationResponse;
 import com.hackhub.application.service.InvitationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class InvitationController {
 		description = "Use case: a team member invites another user to join the team."
 	)
 	public InvitationResponse inviteUser(
-		@PathVariable Long teamId,
+		@Parameter(description = "Team ID", example = "1")
+		@PathVariable("teamId") Long teamId,
 		@Valid @RequestBody CreateInvitationRequest request
 	) {
 		return invitationService.inviteUser(teamId, request);
@@ -42,7 +44,10 @@ public class InvitationController {
 		summary = "Accept invitation",
 		description = "Use case: an invited user accepts a pending team invitation."
 	)
-	public InvitationResponse acceptInvitation(@PathVariable Long invitationId) {
+	public InvitationResponse acceptInvitation(
+		@Parameter(description = "Invitation ID", example = "1")
+		@PathVariable("invitationId") Long invitationId
+	) {
 		return invitationService.acceptInvitation(invitationId);
 	}
 
@@ -51,7 +56,10 @@ public class InvitationController {
 		summary = "Decline invitation",
 		description = "Use case: an invited user declines a pending team invitation."
 	)
-	public InvitationResponse declineInvitation(@PathVariable Long invitationId) {
+	public InvitationResponse declineInvitation(
+		@Parameter(description = "Invitation ID", example = "1")
+		@PathVariable("invitationId") Long invitationId
+	) {
 		return invitationService.declineInvitation(invitationId);
 	}
 }

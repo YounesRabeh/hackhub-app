@@ -4,6 +4,7 @@ import com.hackhub.api.dto.request.CreateEvaluationRequest;
 import com.hackhub.api.dto.response.EvaluationResponse;
 import com.hackhub.application.service.EvaluationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -30,7 +31,8 @@ public class EvaluationController {
 		description = "Use case: an assigned judge scores a submission and adds evaluation feedback."
 	)
 	public EvaluationResponse evaluateSubmission(
-		@PathVariable Long submissionId,
+		@Parameter(description = "Submission ID", example = "1")
+		@PathVariable("submissionId") Long submissionId,
 		@Valid @RequestBody CreateEvaluationRequest request
 	) {
 		return evaluationService.evaluateSubmission(submissionId, request);
@@ -41,7 +43,10 @@ public class EvaluationController {
 		summary = "List hackathon evaluations",
 		description = "Use case: staff review all evaluation records linked to a hackathon."
 	)
-	public List<EvaluationResponse> listHackathonEvaluations(@PathVariable Long hackathonId) {
+	public List<EvaluationResponse> listHackathonEvaluations(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return evaluationService.listHackathonEvaluations(hackathonId);
 	}
 }

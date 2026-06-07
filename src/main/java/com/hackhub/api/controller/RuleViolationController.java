@@ -4,6 +4,7 @@ import com.hackhub.api.dto.request.ReportViolationRequest;
 import com.hackhub.api.dto.response.RuleViolationReportResponse;
 import com.hackhub.application.service.RuleViolationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -33,7 +34,8 @@ public class RuleViolationController {
 		description = "Use case: a participant or staff member reports suspected rule-breaking behavior."
 	)
 	public RuleViolationReportResponse createReport(
-		@PathVariable Long hackathonId,
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId,
 		@Valid @RequestBody ReportViolationRequest request
 	) {
 		return ruleViolationService.createReport(hackathonId, request);
@@ -44,7 +46,10 @@ public class RuleViolationController {
 		summary = "List rule violation reports",
 		description = "Use case: organizers or staff review all violation reports for a hackathon."
 	)
-	public List<RuleViolationReportResponse> listReports(@PathVariable Long hackathonId) {
+	public List<RuleViolationReportResponse> listReports(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") Long hackathonId
+	) {
 		return ruleViolationService.listReports(hackathonId);
 	}
 }
