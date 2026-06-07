@@ -1,11 +1,13 @@
 package com.hackhub.api.controller;
 
+import com.hackhub.api.OpenApiConfig;
 import com.hackhub.api.dto.request.LoginRequest;
 import com.hackhub.api.dto.request.RegisterRequest;
 import com.hackhub.api.dto.response.AuthResponse;
 import com.hackhub.api.dto.response.UserResponse;
 import com.hackhub.application.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/me")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Get current user profile",
 		description = "Use case: the frontend loads the authenticated user profile for session personalization and authorization checks."

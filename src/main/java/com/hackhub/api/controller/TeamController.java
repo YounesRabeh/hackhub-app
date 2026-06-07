@@ -1,9 +1,11 @@
 package com.hackhub.api.controller;
 
+import com.hackhub.api.OpenApiConfig;
 import com.hackhub.api.dto.request.CreateTeamRequest;
 import com.hackhub.api.dto.response.TeamResponse;
 import com.hackhub.application.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 	name = "Teams",
 	description = "Create teams and retrieve team information for the authenticated user."
 )
+@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 public class TeamController {
 
 	private final TeamService teamService;

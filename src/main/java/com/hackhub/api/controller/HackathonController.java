@@ -1,5 +1,6 @@
 package com.hackhub.api.controller;
 
+import com.hackhub.api.OpenApiConfig;
 import com.hackhub.api.dto.request.CreateHackathonRequest;
 import com.hackhub.api.dto.request.DeclareWinnerRequest;
 import com.hackhub.api.dto.request.RegisterTeamToHackathonRequest;
@@ -14,6 +15,7 @@ import com.hackhub.application.service.OrganizerService;
 import com.hackhub.application.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -66,6 +68,7 @@ public class HackathonController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Create hackathon",
 		description = "Use case: an organizer creates a new hackathon event with dates and rules."
@@ -75,6 +78,7 @@ public class HackathonController {
 	}
 
 	@PostMapping("/{hackathonId}/mentors/{mentorId}")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Assign mentor to hackathon",
 		description = "Use case: an organizer assigns a mentor so they can support participating teams."
@@ -89,6 +93,7 @@ public class HackathonController {
 	}
 
 	@PostMapping("/{hackathonId}/judges/{judgeId}")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Assign judge to hackathon",
 		description = "Use case: an organizer assigns a judge who can score submissions during evaluation."
@@ -103,6 +108,7 @@ public class HackathonController {
 	}
 
 	@PatchMapping("/{hackathonId}/status")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Update hackathon status",
 		description = "Use case: staff transitions the hackathon lifecycle (registration, in-progress, evaluation, finished)."
@@ -117,6 +123,7 @@ public class HackathonController {
 
 	@PostMapping("/{hackathonId}/registrations")
 	@ResponseStatus(HttpStatus.CREATED)
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Register team to hackathon",
 		description = "Use case: a team signs up to participate in a specific hackathon."
@@ -130,6 +137,7 @@ public class HackathonController {
 	}
 
 	@GetMapping("/{hackathonId}/registrations")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "List hackathon registrations",
 		description = "Use case: organizers review all teams registered for a hackathon."
@@ -142,6 +150,7 @@ public class HackathonController {
 	}
 
 	@PutMapping("/{hackathonId}/submissions/my-team")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Create or update my team submission",
 		description = "Use case: a team submits or edits their project deliverables for a hackathon."
@@ -155,6 +164,7 @@ public class HackathonController {
 	}
 
 	@GetMapping("/{hackathonId}/submissions/my-team")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Get my team submission",
 		description = "Use case: a team views its current submission for a hackathon."
@@ -167,6 +177,7 @@ public class HackathonController {
 	}
 
 	@GetMapping("/{hackathonId}/submissions")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "List hackathon submissions",
 		description = "Use case: assigned mentors or judges review all submissions in a hackathon."
@@ -179,6 +190,7 @@ public class HackathonController {
 	}
 
 	@PostMapping("/{hackathonId}/winner")
+	@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 	@Operation(
 		summary = "Declare hackathon winner",
 		description = "Use case: an organizer sets the winning team after evaluation is completed."

@@ -1,10 +1,12 @@
 package com.hackhub.api.controller;
 
+import com.hackhub.api.OpenApiConfig;
 import com.hackhub.api.dto.request.CreateInvitationRequest;
 import com.hackhub.api.dto.response.InvitationResponse;
 import com.hackhub.application.service.InvitationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 	name = "Invitations",
 	description = "Invite users to teams and manage invitation acceptance or decline."
 )
+@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
 public class InvitationController {
 
 	private final InvitationService invitationService;
