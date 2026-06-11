@@ -8,10 +8,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @TestConfiguration
 public class EndpointCoverageTestConfiguration implements WebMvcConfigurer {
 
+	@NonNull
 	private final EndpointCoverageInterceptor endpointCoverageInterceptor;
 
 	public EndpointCoverageTestConfiguration(
-		EndpointCoverageInterceptor endpointCoverageInterceptor
+		@NonNull EndpointCoverageInterceptor endpointCoverageInterceptor
 	) {
 		this.endpointCoverageInterceptor = endpointCoverageInterceptor;
 	}

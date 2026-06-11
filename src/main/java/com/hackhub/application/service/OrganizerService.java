@@ -20,6 +20,7 @@ import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,13 +41,17 @@ public class OrganizerService {
 	private final PaymentPrizeService paymentPrizeService;
 
 	@Transactional
-	public HackathonResponse declareWinner(Long hackathonId, DeclareWinnerRequest request) {
+	public HackathonResponse declareWinner(
+		@NonNull Long hackathonId,
+		@NonNull DeclareWinnerRequest request
+	) {
+		DeclareWinnerRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
 		Hackathon hackathon = hackathonRepository
-			.findById(hackathonId)
+			.findById(requiredId(hackathonId, "Hackathon ID is required"))
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
 		Team winnerTeam = teamRepository
-			.findById(request.winnerTeamId())
+			.findById(requiredId(requiredRequest.winnerTeamId(), "Winner team ID is required"))
 			.orElseThrow(() -> new NotFoundException("Winner team not found"));
 
 		if (!staffAccessService.isOrganizerOf(currentUser, hackathon)) {
@@ -91,5 +96,21 @@ public class OrganizerService {
 		return userRepository
 			.findByEmail(authentication.getName())
 			.orElseThrow(() -> new NotFoundException("Authenticated user not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private DeclareWinnerRequest requiredRequest(DeclareWinnerRequest request) {
+		if (request == null) {
+			throw new BadRequestException("Declare winner request is required");
+		}
+		return request;
 	}
 }

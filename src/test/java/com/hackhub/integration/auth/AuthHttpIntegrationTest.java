@@ -2,7 +2,9 @@ package com.hackhub.integration.auth;
 
 import com.hackhub.testsupport.IntegrationTestSupport;
 import java.util.Locale;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
+import org.springframework.lang.NonNull;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.containsString;
@@ -75,8 +77,8 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 		postJson("/api/auth/register", registerPayload("not-an-email", "short"))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Validation failed"))
-			.andExpect(jsonPath("$.details", hasItem(containsString("email"))))
-			.andExpect(jsonPath("$.details", hasItem(containsString("password"))));
+			.andExpect(jsonPath("$.details", validationDetailContaining("email")))
+			.andExpect(jsonPath("$.details", validationDetailContaining("password")));
 	}
 
 	@Test
@@ -89,5 +91,12 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.user.email").value(email.toLowerCase(Locale.ROOT)))
 			.andExpect(jsonPath("$.token").isString());
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull Matcher<? super Iterable<? super String>> validationDetailContaining(
+		@NonNull String detail
+	) {
+		return hasItem(containsString(detail));
 	}
 }

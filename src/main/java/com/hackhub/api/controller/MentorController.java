@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,8 +41,8 @@ public class MentorController {
 	)
 	public SupportRequestResponse createSupportRequest(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId,
-		@Valid @RequestBody CreateSupportRequestRequest request
+		@PathVariable("hackathonId") @NonNull Long hackathonId,
+		@Valid @RequestBody @NonNull CreateSupportRequestRequest request
 	) {
 		return mentorService.createSupportRequest(hackathonId, request);
 	}
@@ -53,7 +54,7 @@ public class MentorController {
 	)
 	public List<SupportRequestResponse> listSupportRequests(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId
+		@PathVariable("hackathonId") @NonNull Long hackathonId
 	) {
 		return mentorService.listSupportRequests(hackathonId);
 	}
@@ -65,8 +66,8 @@ public class MentorController {
 	)
 	public CallProposalResponse proposeCall(
 		@Parameter(description = "Support request ID", example = "1")
-		@PathVariable("supportRequestId") Long supportRequestId,
-		@Valid @RequestBody ProposeCallRequest request
+		@PathVariable("supportRequestId") @NonNull Long supportRequestId,
+		@Valid @RequestBody @NonNull ProposeCallRequest request
 	) {
 		return mentorService.proposeCall(supportRequestId, request);
 	}

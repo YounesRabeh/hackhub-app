@@ -131,8 +131,8 @@ public class HackathonController {
 	)
 	public HackathonRegistrationResponse registerTeam(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId,
-		@Valid @RequestBody RegisterTeamToHackathonRequest request
+		@PathVariable("hackathonId") @NonNull Long hackathonId,
+		@Valid @RequestBody @NonNull RegisterTeamToHackathonRequest request
 	) {
 		return hackathonRegistrationService.registerTeam(hackathonId, request);
 	}
@@ -145,7 +145,7 @@ public class HackathonController {
 	)
 	public List<HackathonRegistrationResponse> listRegistrations(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId
+		@PathVariable("hackathonId") @NonNull Long hackathonId
 	) {
 		return hackathonRegistrationService.listRegistrations(hackathonId);
 	}
@@ -198,8 +198,8 @@ public class HackathonController {
 	)
 	public HackathonResponse declareWinner(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId,
-		@Valid @RequestBody DeclareWinnerRequest request
+		@PathVariable("hackathonId") @NonNull Long hackathonId,
+		@Valid @RequestBody @NonNull DeclareWinnerRequest request
 	) {
 		return organizerService.declareWinner(hackathonId, request);
 	}

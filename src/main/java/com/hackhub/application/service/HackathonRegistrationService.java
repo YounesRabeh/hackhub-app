@@ -17,6 +17,7 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,12 +38,15 @@ public class HackathonRegistrationService {
 
 	@Transactional
 	public HackathonRegistrationResponse registerTeam(
-		Long hackathonId,
-		RegisterTeamToHackathonRequest request
+		@NonNull Long hackathonId,
+		@NonNull RegisterTeamToHackathonRequest request
 	) {
+		RegisterTeamToHackathonRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
-		Team team = loadTeam(request.teamId());
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
+		Team team = loadTeam(requiredId(requiredRequest.teamId(), "Team ID is required"));
 
 		if (!teamRepository.existsByIdAndMembersContaining(team.getId(), currentUser)) {
 			throw new ForbiddenException("Only team members can register their team");
@@ -71,9 +75,11 @@ public class HackathonRegistrationService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<HackathonRegistrationResponse> listRegistrations(Long hackathonId) {
+	public List<HackathonRegistrationResponse> listRegistrations(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 
 		if (!staffAccessService.canAccessSubmissions(currentUser, hackathon)) {
 			throw new ForbiddenException("Only assigned staff can view registrations");
@@ -86,14 +92,32 @@ public class HackathonRegistrationService {
 			.toList();
 	}
 
-	private Hackathon loadHackathon(Long hackathonId) {
+	private Hackathon loadHackathon(@NonNull Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
 	}
 
-	private Team loadTeam(Long teamId) {
+	private Team loadTeam(@NonNull Long teamId) {
 		return teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("Team not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private RegisterTeamToHackathonRequest requiredRequest(
+		RegisterTeamToHackathonRequest request
+	) {
+		if (request == null) {
+			throw new BadRequestException("Hackathon registration request is required");
+		}
+		return request;
 	}
 
 	private User currentUser() {

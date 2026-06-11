@@ -26,6 +26,7 @@ import com.hackhub.infrastructure.external.calendar.CalendarClient;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -46,11 +47,14 @@ public class MentorService {
 
 	@Transactional
 	public SupportRequestResponse createSupportRequest(
-		Long hackathonId,
-		CreateSupportRequestRequest request
+		@NonNull Long hackathonId,
+		@NonNull CreateSupportRequestRequest request
 	) {
+		CreateSupportRequestRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 
 		if (hackathon.getStatus() != HackathonStatus.IN_PROGRESS) {
 			throw new BadRequestException("Hackathon must be IN_PROGRESS");
@@ -68,8 +72,8 @@ public class MentorService {
 		supportRequest.setHackathon(hackathon);
 		supportRequest.setTeam(team);
 		supportRequest.setCreatedByUser(currentUser);
-		supportRequest.setTitle(request.title().trim());
-		supportRequest.setMessage(request.message().trim());
+		supportRequest.setTitle(requiredRequest.title().trim());
+		supportRequest.setMessage(requiredRequest.message().trim());
 		supportRequest.setStatus(SupportRequestStatus.OPEN);
 		supportRequest.setCreatedAt(LocalDateTime.now());
 
@@ -77,9 +81,11 @@ public class MentorService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<SupportRequestResponse> listSupportRequests(Long hackathonId) {
+	public List<SupportRequestResponse> listSupportRequests(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 
 		if (!staffAccessService.isMentorOf(currentUser, hackathon)) {
 			throw new ForbiddenException("Only assigned mentors can view support requests");
@@ -94,12 +100,13 @@ public class MentorService {
 
 	@Transactional
 	public CallProposalResponse proposeCall(
-		Long supportRequestId,
-		ProposeCallRequest request
+		@NonNull Long supportRequestId,
+		@NonNull ProposeCallRequest request
 	) {
+		ProposeCallRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
 		SupportRequest supportRequest = supportRequestRepository
-			.findById(supportRequestId)
+			.findById(requiredId(supportRequestId, "Support request ID is required"))
 			.orElseThrow(() -> new NotFoundException("Support request not found"));
 
 		User assignedMentor = supportRequest.getAssignedMentor();
@@ -112,7 +119,7 @@ public class MentorService {
 
 		CalendarBookingRequest bookingRequest = new CalendarBookingRequest(
 			supportRequest.getTitle(),
-			request.scheduledAt(),
+			requiredRequest.scheduledAt(),
 			supportRequest.getCreatedByUser().getEmail(),
 			currentUser.getEmail()
 		);
@@ -121,7 +128,7 @@ public class MentorService {
 		MentorCallProposal proposal = new MentorCallProposal();
 		proposal.setSupportRequest(supportRequest);
 		proposal.setMentor(currentUser);
-		proposal.setScheduledAt(request.scheduledAt());
+		proposal.setScheduledAt(requiredRequest.scheduledAt());
 		proposal.setExternalCallId(bookingResponse.externalCallId());
 		proposal.setBookingUrl(bookingResponse.bookingUrl());
 		proposal.setCreatedAt(LocalDateTime.now());
@@ -132,10 +139,36 @@ public class MentorService {
 		return toResponse(mentorCallProposalRepository.save(proposal));
 	}
 
-	private Hackathon loadHackathon(Long hackathonId) {
+	private Hackathon loadHackathon(@NonNull Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private CreateSupportRequestRequest requiredRequest(
+		CreateSupportRequestRequest request
+	) {
+		if (request == null) {
+			throw new BadRequestException("Support request is required");
+		}
+		return request;
+	}
+
+	@NonNull
+	private ProposeCallRequest requiredRequest(ProposeCallRequest request) {
+		if (request == null) {
+			throw new BadRequestException("Call proposal request is required");
+		}
+		return request;
 	}
 
 	private User currentUser() {
