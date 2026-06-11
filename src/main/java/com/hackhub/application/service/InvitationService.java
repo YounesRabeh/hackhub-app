@@ -15,6 +15,7 @@ import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,27 @@ public class InvitationService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public InvitationResponse inviteUser(Long teamId, CreateInvitationRequest request) {
+	public InvitationResponse inviteUser(
+		@NonNull Long teamId,
+		@NonNull CreateInvitationRequest request
+	) {
+		Long requiredTeamId = requiredId(teamId, "Team ID is required");
+		CreateInvitationRequest requiredRequest = requiredRequest(request);
+		Long invitedUserId = requiredId(
+			requiredRequest.invitedUserId(),
+			"Invited user ID is required"
+		);
 		User currentUser = currentUser();
 		Team team = teamRepository
-			.findById(teamId)
+			.findById(requiredTeamId)
 			.orElseThrow(() -> new NotFoundException("Team not found"));
 
-		if (!teamRepository.existsByIdAndMembersContaining(teamId, currentUser)) {
+		if (!teamRepository.existsByIdAndMembersContaining(requiredTeamId, currentUser)) {
 			throw new ForbiddenException("Only team members can invite users");
 		}
 
 		User invitedUser = userRepository
-			.findById(request.invitedUserId())
+			.findById(invitedUserId)
 			.orElseThrow(() -> new NotFoundException("Invited user not found"));
 
 		if (teamRepository.findByMembersContaining(invitedUser).isPresent()) {
@@ -62,9 +72,11 @@ public class InvitationService {
 	}
 
 	@Transactional
-	public InvitationResponse acceptInvitation(Long invitationId) {
+	public InvitationResponse acceptInvitation(@NonNull Long invitationId) {
 		User currentUser = currentUser();
-		TeamInvitation invitation = loadInvitation(invitationId);
+		TeamInvitation invitation = loadInvitation(
+			requiredId(invitationId, "Invitation ID is required")
+		);
 		assertInvitedUser(invitation, currentUser);
 		assertPending(invitation);
 
@@ -80,9 +92,11 @@ public class InvitationService {
 	}
 
 	@Transactional
-	public InvitationResponse declineInvitation(Long invitationId) {
+	public InvitationResponse declineInvitation(@NonNull Long invitationId) {
 		User currentUser = currentUser();
-		TeamInvitation invitation = loadInvitation(invitationId);
+		TeamInvitation invitation = loadInvitation(
+			requiredId(invitationId, "Invitation ID is required")
+		);
 		assertInvitedUser(invitation, currentUser);
 		assertPending(invitation);
 
@@ -92,10 +106,26 @@ public class InvitationService {
 		return toResponse(invitation);
 	}
 
-	private TeamInvitation loadInvitation(Long invitationId) {
+	private TeamInvitation loadInvitation(@NonNull Long invitationId) {
 		return teamInvitationRepository
 			.findById(invitationId)
 			.orElseThrow(() -> new NotFoundException("Invitation not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private CreateInvitationRequest requiredRequest(CreateInvitationRequest request) {
+		if (request == null) {
+			throw new BadRequestException("Invitation request is required");
+		}
+		return request;
 	}
 
 	private void assertInvitedUser(TeamInvitation invitation, User currentUser) {

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,8 +37,8 @@ public class InvitationController {
 	)
 	public InvitationResponse inviteUser(
 		@Parameter(description = "Team ID", example = "1")
-		@PathVariable("teamId") Long teamId,
-		@Valid @RequestBody CreateInvitationRequest request
+		@PathVariable("teamId") @NonNull Long teamId,
+		@Valid @RequestBody @NonNull CreateInvitationRequest request
 	) {
 		return invitationService.inviteUser(teamId, request);
 	}
@@ -49,7 +50,7 @@ public class InvitationController {
 	)
 	public InvitationResponse acceptInvitation(
 		@Parameter(description = "Invitation ID", example = "1")
-		@PathVariable("invitationId") Long invitationId
+		@PathVariable("invitationId") @NonNull Long invitationId
 	) {
 		return invitationService.acceptInvitation(invitationId);
 	}
@@ -61,7 +62,7 @@ public class InvitationController {
 	)
 	public InvitationResponse declineInvitation(
 		@Parameter(description = "Invitation ID", example = "1")
-		@PathVariable("invitationId") Long invitationId
+		@PathVariable("invitationId") @NonNull Long invitationId
 	) {
 		return invitationService.declineInvitation(invitationId);
 	}
