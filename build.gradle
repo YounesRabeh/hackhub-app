@@ -12,10 +12,12 @@ plugins {
 	id 'org.springframework.boot' version '3.5.15'
 	// Imports Spring's managed dependency versions.
 	id 'io.spring.dependency-management' version '1.1.7'
+	// Adds AppMap recording support for Gradle test runs.
+	id 'com.appland.appmap' version '1.2.0'
 }
 
 group = 'com.hackhub'
-version = '0.9.1'
+version = '0.9.1-dev'
 description = 'HackHub - Hackathon Management Platform'
 
 java {
@@ -74,6 +76,14 @@ tasks.named('test') {
 tasks.named('bootRun') {
 	// Local app runs always use the development profile.
 	systemProperty 'spring.profiles.active', 'dev'
+}
+
+appmap {
+	// Root AppMap configuration for the HackHub package.
+	configFile = file("$projectDir/appmap.yml")
+	// Keep generated test recordings inside Gradle build output.
+	outputDirectory = file("$buildDir/appmap")
+	debugFile = file("$buildDir/appmap/agent.log")
 }
 
 tasks.register('cov', Test) {

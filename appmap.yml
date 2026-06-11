@@ -1,0 +1,3 @@
+name: hack-club-app
+packages:
+  - path: com.hackhub
