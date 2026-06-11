@@ -127,3 +127,29 @@ tmp/appmap/request_recording/
 - `tmp/appmap/` and `.appmap/` are ignored explicitly.
 - The project uses Java 25. AppMap may print Java agent or Byte Buddy warnings
   during startup. These warnings do not necessarily mean recording failed.
+
+
+Model -> domain
+         domain/model
+         domain/enums
+         domain/state
+
+Controller -> api/controller
+
+View -> api/dto
+        api/dto/request
+        api/dto/response
+
+Service / Business Logic -> application/service
+
+Mapper -> application/mapper
+
+Persistence / Repository -> infrastructure/repository
+
+External Services -> infrastructure/external
+
+Security -> security
+
+Configuration / Startup -> HackHubApplication.java
+                           api/OpenApiConfig.java
+                           application.yml
