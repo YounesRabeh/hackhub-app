@@ -25,14 +25,12 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 
@@ -135,8 +133,8 @@ class MentorServiceTest {
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
 		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
 		when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-		when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(
-			MentorServiceTest::savedCallProposal
+		when(callProposalRepository.save(any(MentorCallProposal.class))).thenReturn(
+			savedCallProposal(supportRequest, mentor)
 		);
 
 		var response = mentorService.proposeCall(
@@ -160,16 +158,29 @@ class MentorServiceTest {
 	}
 
 	private static @NonNull LocalDateTime tomorrow() {
-		return Objects.requireNonNull(LocalDateTime.now()).plusDays(1);
+		LocalDateTime now = LocalDateTime.now();
+		if (now == null) {
+			throw new IllegalStateException("Current time is required");
+		}
+		LocalDateTime scheduledAt = now.plusDays(1);
+		if (scheduledAt == null) {
+			throw new IllegalStateException("Scheduled time is required");
+		}
+		return scheduledAt;
 	}
 
 	private static @NonNull MentorCallProposal savedCallProposal(
-		InvocationOnMock invocation
+		SupportRequest supportRequest,
+		User mentor
 	) {
-		MentorCallProposal proposal = Objects.requireNonNull(
-			invocation.getArgument(0, MentorCallProposal.class)
-		);
+		MentorCallProposal proposal = new MentorCallProposal();
 		proposal.setId(60L);
+		proposal.setSupportRequest(supportRequest);
+		proposal.setMentor(mentor);
+		proposal.setScheduledAt(tomorrow());
+		proposal.setExternalCallId("external-123");
+		proposal.setBookingUrl("https://calendar.example/booking");
+		proposal.setCreatedAt(tomorrow());
 		return proposal;
 	}
 }

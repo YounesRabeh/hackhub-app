@@ -17,14 +17,12 @@ import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 
@@ -142,8 +140,8 @@ class HackathonServiceTest {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		TestSecurity.authenticateAs(organizer);
 		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
-		when(hackathonRepository.save(any(Hackathon.class))).thenAnswer(
-			HackathonServiceTest::savedHackathon
+		when(hackathonRepository.save(any(Hackathon.class))).thenReturn(
+			TestDataFactory.hackathon(10L, organizer, HackathonStatus.REGISTRATION_OPEN)
 		);
 
 		var response = hackathonService.createHackathon(validCreateRequest());
@@ -153,7 +151,7 @@ class HackathonServiceTest {
 	}
 
 	private @NonNull CreateHackathonRequest validCreateRequest() {
-		LocalDateTime base = Objects.requireNonNull(LocalDateTime.now()).plusDays(3);
+		LocalDateTime base = LocalDateTime.now().plusDays(3);
 		return new CreateHackathonRequest(
 			"HackHub Test",
 			"Build something useful",
@@ -163,13 +161,5 @@ class HackathonServiceTest {
 			base.plusDays(7),
 			new BigDecimal("1000.00")
 		);
-	}
-
-	private static @NonNull Hackathon savedHackathon(InvocationOnMock invocation) {
-		Hackathon hackathon = Objects.requireNonNull(
-			invocation.getArgument(0, Hackathon.class)
-		);
-		hackathon.setId(10L);
-		return hackathon;
 	}
 }

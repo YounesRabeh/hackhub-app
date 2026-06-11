@@ -11,7 +11,6 @@ import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
-import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -56,8 +53,8 @@ class TeamServiceTest {
 		TestSecurity.authenticateAs(user);
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.empty());
-		when(teamRepository.save(any(Team.class))).thenAnswer(
-			TeamServiceTest::savedTeam
+		when(teamRepository.save(any(Team.class))).thenReturn(
+			savedTeam(user)
 		);
 
 		var response = teamService.createTeam(new CreateTeamRequest(" CodeStorm "));
@@ -83,9 +80,9 @@ class TeamServiceTest {
 			.hasMessage("User already belongs to a team");
 	}
 
-	private static @NonNull Team savedTeam(InvocationOnMock invocation) {
-		Team team = Objects.requireNonNull(invocation.getArgument(0, Team.class));
-		team.setId(10L);
+	private static Team savedTeam(User user) {
+		Team team = TestDataFactory.team(10L, user, user);
+		team.setName("CodeStorm");
 		return team;
 	}
 }

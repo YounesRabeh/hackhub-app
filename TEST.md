@@ -1,6 +1,6 @@
 # HackHub Manual Test Flow
 
-This file documents the dev-profile request order, request payloads, and expected values for the main HackHub API flow.
+This file documents the dev-profile request order, request payloads, and expected values for the main HackHub backend API flow.
 
 It is based on:
 

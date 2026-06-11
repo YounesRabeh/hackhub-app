@@ -17,14 +17,12 @@ import com.hackhub.infrastructure.repository.SubmissionRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
-import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 
@@ -98,9 +96,9 @@ class EvaluationServiceTest {
 		when(submissionRepository.findById(30L)).thenReturn(Optional.of(submission));
 		when(staffAccessService.isJudgeOf(judge, hackathon)).thenReturn(true);
 		when(evaluationRepository.findBySubmission(submission)).thenReturn(Optional.empty());
-		when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(
-			EvaluationServiceTest::savedEvaluation
-		);
+		Evaluation savedEvaluation = TestDataFactory.evaluation(40L, submission, judge);
+		savedEvaluation.setScore(9);
+		when(evaluationRepository.save(any(Evaluation.class))).thenReturn(savedEvaluation);
 
 		var response = evaluationService.evaluateSubmission(30L, validEvaluationRequest());
 
@@ -135,13 +133,5 @@ class EvaluationServiceTest {
 
 	private @NonNull CreateEvaluationRequest validEvaluationRequest() {
 		return new CreateEvaluationRequest(9, "Excellent project");
-	}
-
-	private static @NonNull Evaluation savedEvaluation(InvocationOnMock invocation) {
-		Evaluation evaluation = Objects.requireNonNull(
-			invocation.getArgument(0, Evaluation.class)
-		);
-		evaluation.setId(40L);
-		return evaluation;
 	}
 }
