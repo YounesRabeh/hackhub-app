@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,13 +53,13 @@ class TeamServiceTest {
 		TestSecurity.authenticateAs(user);
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.empty());
-		when(teamRepository.save(isA(Team.class))).thenReturn(
+		when(teamRepository.save(anyTeam())).thenReturn(
 			savedTeam(user)
 		);
 
 		var response = teamService.createTeam(new CreateTeamRequest(" CodeStorm "));
 
-		verify(teamRepository).save(isA(Team.class));
+		verify(teamRepository).save(anyTeam());
 		assertThat(response.name()).isEqualTo("CodeStorm");
 		assertThat(response.memberIds()).containsExactly(1L);
 	}
@@ -80,5 +81,10 @@ class TeamServiceTest {
 		Team team = TestDataFactory.team(10L, user, user);
 		team.setName("CodeStorm");
 		return team;
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull Team anyTeam() {
+		return isA(Team.class);
 	}
 }

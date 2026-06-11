@@ -140,7 +140,7 @@ class HackathonServiceTest {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		TestSecurity.authenticateAs(organizer);
 		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
-		when(hackathonRepository.save(isA(Hackathon.class))).thenReturn(
+		when(hackathonRepository.save(anyHackathon())).thenReturn(
 			TestDataFactory.hackathon(10L, organizer, HackathonStatus.REGISTRATION_OPEN)
 		);
 
@@ -161,5 +161,10 @@ class HackathonServiceTest {
 			base.plusDays(7),
 			new BigDecimal("1000.00")
 		);
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull Hackathon anyHackathon() {
+		return isA(Hackathon.class);
 	}
 }

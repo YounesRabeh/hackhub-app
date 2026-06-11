@@ -51,7 +51,7 @@ class PaymentPrizeServiceTest {
 		);
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
 		when(paymentClient.payPrize(isA(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
-		when(paymentTransactionRepository.save(isA(PaymentTransaction.class))).thenReturn(
+		when(paymentTransactionRepository.save(anyPaymentTransaction())).thenReturn(
 			completedTransaction(hackathon, winnerTeam)
 		);
 
@@ -76,7 +76,7 @@ class PaymentPrizeServiceTest {
 		);
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
 		when(paymentClient.payPrize(isA(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
-		when(paymentTransactionRepository.save(isA(PaymentTransaction.class))).thenReturn(
+		when(paymentTransactionRepository.save(anyPaymentTransaction())).thenReturn(
 			failedTransaction(hackathon, winnerTeam)
 		);
 
@@ -119,5 +119,10 @@ class PaymentPrizeServiceTest {
 		transaction.setAmount(hackathon.getPrizeAmount());
 		transaction.setCreatedAt(LocalDateTime.now());
 		return transaction;
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull PaymentTransaction anyPaymentTransaction() {
+		return isA(PaymentTransaction.class);
 	}
 }

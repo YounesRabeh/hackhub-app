@@ -125,7 +125,7 @@ class SubmissionServiceTest {
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.of(team));
 		when(registrationRepository.existsByHackathonAndTeam(hackathon, team)).thenReturn(true);
 		when(submissionRepository.findByHackathonAndTeam(hackathon, team)).thenReturn(Optional.empty());
-		when(submissionRepository.save(isA(Submission.class))).thenReturn(
+		when(submissionRepository.save(anySubmission())).thenReturn(
 			TestDataFactory.submission(30L, hackathon, team)
 		);
 
@@ -133,7 +133,7 @@ class SubmissionServiceTest {
 
 		assertThat(response.id()).isEqualTo(30L);
 		assertThat(response.teamId()).isEqualTo(20L);
-		verify(submissionRepository).save(isA(Submission.class));
+		verify(submissionRepository).save(anySubmission());
 	}
 
 	@Test
@@ -157,5 +157,10 @@ class SubmissionServiceTest {
 			"https://demo.example.com/study-buddy",
 			"A tool for study planning"
 		);
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull Submission anySubmission() {
+		return isA(Submission.class);
 	}
 }

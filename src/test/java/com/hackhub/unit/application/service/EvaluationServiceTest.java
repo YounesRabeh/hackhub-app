@@ -98,7 +98,7 @@ class EvaluationServiceTest {
 		when(evaluationRepository.findBySubmission(submission)).thenReturn(Optional.empty());
 		Evaluation savedEvaluation = TestDataFactory.evaluation(40L, submission, judge);
 		savedEvaluation.setScore(9);
-		when(evaluationRepository.save(isA(Evaluation.class))).thenReturn(savedEvaluation);
+		when(evaluationRepository.save(anyEvaluation())).thenReturn(savedEvaluation);
 
 		var response = evaluationService.evaluateSubmission(30L, validEvaluationRequest());
 
@@ -133,5 +133,10 @@ class EvaluationServiceTest {
 
 	private @NonNull CreateEvaluationRequest validEvaluationRequest() {
 		return new CreateEvaluationRequest(9, "Excellent project");
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull Evaluation anyEvaluation() {
+		return isA(Evaluation.class);
 	}
 }

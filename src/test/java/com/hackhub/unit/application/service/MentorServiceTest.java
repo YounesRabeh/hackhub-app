@@ -133,7 +133,7 @@ class MentorServiceTest {
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
 		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
 		when(calendarClient.bookCall(isA(com.hackhub.infrastructure.external.calendar.CalendarBookingRequest.class))).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-		when(callProposalRepository.save(isA(MentorCallProposal.class))).thenReturn(
+		when(callProposalRepository.save(anyCallProposal())).thenReturn(
 			savedCallProposal(supportRequest, mentor)
 		);
 
@@ -182,5 +182,10 @@ class MentorServiceTest {
 		proposal.setBookingUrl("https://calendar.example/booking");
 		proposal.setCreatedAt(tomorrow());
 		return proposal;
+	}
+
+	@SuppressWarnings("all")
+	private static @NonNull MentorCallProposal anyCallProposal() {
+		return isA(MentorCallProposal.class);
 	}
 }
