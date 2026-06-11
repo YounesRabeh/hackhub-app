@@ -15,7 +15,7 @@ plugins {
 }
 
 group = 'com.hackhub'
-version = '0.8.8'
+version = '0.9.0'
 description = 'HackHub - Hackathon Management Platform'
 
 java {
@@ -67,6 +67,8 @@ dependencies {
 tasks.named('test') {
 	// Enables JUnit 5 test execution.
 	useJUnitPlatform()
+	// Suppresses the harmless JVM CDS warning caused by test instrumentation.
+	jvmArgs '-Xshare:off'
 }
 
 tasks.register('cov', Test) {
