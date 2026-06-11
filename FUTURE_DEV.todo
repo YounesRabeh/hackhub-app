@@ -1,0 +1,55 @@
+# Future Refactor Ideas
+
+DESC
+
+1. Add `CurrentUserService`
+   - Extract repeated authenticated-user lookup from application services.
+   - Helps `InvitationService`, `SubmissionService`, `MentorService`, `EvaluationService`, `TeamService`, and `OrganizerService`.
+   - Prefer this over an abstract base service.
+
+2. Inject `Clock` or add a `ClockProvider`
+   - Replace direct `LocalDateTime.now()` calls.
+   - Makes deadline, invitation, submission, evaluation, and payment behavior easier to test.
+
+3. Introduce access-policy interfaces
+   - Example: `StaffAccessPolicy`, `HackathonAccessPolicy`, `TeamAccessPolicy`.
+   - Keeps authorization rules separate from workflow services.
+   - `StaffAccessService` can become the first implementation.
+
+4. Extract lookup helpers into small services
+   - Example: `HackathonLookupService`, `TeamLookupService`, `InvitationLookupService`.
+   - Centralizes repeated `findById(...).orElseThrow(...)` logic.
+   - Reduces duplicated not-found messages and null-safety guards.
+
+5. Add workflow validator servizi
+   - Example: `HackathonValidator`, `SubmissionValidator`, `RegistrationValidator`.
+   - Moves status, deadline, and business-rule checks out of large service methods.
+
+# ANCHE NO: 6. Keep external integrations behind interfaces
+#   - Continue the `PaymentClient` and `CalendarClient` style.
+#   - Add future interfaces for email, notifications, or file storage if those integrations appear.
+
+7. Add a `DomainEventPublisher` interface
+   - Useful for side effects such as invitation created, winner declared, payment completed, or mentor call proposed.
+   - Helps avoid putting notification/payment/calendar logic directly into workflows.
+
+8. Add notification interfaces when needed
+   - Example: `NotificationClient` or `NotificationService`.
+   - Useful if invitations, support requests, or results need email/in-app notifications.
+
+9. Introduce use-case interfaces for controller-facing services
+   - Example: `InvitationUseCase`, `SubmissionUseCase`, `HackathonRegistrationUseCase`.
+   - Only do this where controllers benefit from depending on contracts instead of concrete services.
+   - Avoid adding interfaces for every service by default.
+
+10. Improve unit-test fixture builders
+    - Replace some repeated setup with clearer builders for users, teams, hackathons, submissions, and evaluations.
+    - Keep `TestDataFactory`, but consider builder-style helpers if test data becomes more varied.
+
+11. Add mapper interfaces only if mapping grows
+    - Current mapper classes are fine.
+    - Interfaces become useful if using MapStruct or supporting multiple response shapes.
+
+!!!12. base entity for common fields
+    - Possible shared fields: `id`, `createdAt`, `updatedAt`.
+    - Only worth it if most entities consistently share lifecycle fields.
