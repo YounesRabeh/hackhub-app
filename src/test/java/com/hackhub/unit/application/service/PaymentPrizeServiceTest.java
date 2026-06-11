@@ -12,6 +12,7 @@ import com.hackhub.infrastructure.external.payment.PaymentRequest;
 import com.hackhub.infrastructure.external.payment.PaymentResponse;
 import com.hackhub.infrastructure.repository.PaymentTransactionRepository;
 import com.hackhub.testsupport.TestDataFactory;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,13 +50,13 @@ class PaymentPrizeServiceTest {
 			TestDataFactory.user(1L, Role.ORGANIZER),
 			HackathonStatus.FINISHED
 		);
-			Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-			when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
-			when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> {
-				PaymentTransaction transaction = paymentTransactionArgument(invocation);
-				transaction.setId(30L);
-				return transaction;
-			});
+		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
+		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> {
+			PaymentTransaction transaction = paymentTransactionArgument(invocation);
+			transaction.setId(30L);
+			return transaction;
+		});
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
@@ -75,12 +76,12 @@ class PaymentPrizeServiceTest {
 			10L,
 			TestDataFactory.user(1L, Role.ORGANIZER),
 			HackathonStatus.FINISHED
-			);
-			Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-			when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
-			when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
-				PaymentPrizeServiceTest::paymentTransactionArgument
-			);
+		);
+		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
+		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
+			PaymentPrizeServiceTest::paymentTransactionArgument
+		);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
@@ -89,10 +90,9 @@ class PaymentPrizeServiceTest {
 		assertThat(transaction.getCompletedAt()).isNull();
 	}
 
-	@SuppressWarnings("null")
 	private static @NonNull PaymentTransaction paymentTransactionArgument(
 		InvocationOnMock invocation
 	) {
-		return invocation.getArgument(0);
+		return Objects.requireNonNull(invocation.getArgument(0));
 	}
 }

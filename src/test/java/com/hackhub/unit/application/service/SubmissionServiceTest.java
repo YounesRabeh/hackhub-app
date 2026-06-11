@@ -21,6 +21,7 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,7 +154,6 @@ class SubmissionServiceTest {
 			.hasMessage("Only assigned staff can view submissions");
 	}
 
-	@SuppressWarnings("null")
 	private @NonNull UpsertSubmissionRequest validSubmissionRequest() {
 		return new UpsertSubmissionRequest(
 			"AI Study Buddy",
@@ -163,8 +163,7 @@ class SubmissionServiceTest {
 		);
 	}
 
-	@SuppressWarnings("null")
 	private static @NonNull Submission submissionArgument(InvocationOnMock invocation) {
-		return invocation.getArgument(0);
+		return Objects.requireNonNull(invocation.getArgument(0));
 	}
 }

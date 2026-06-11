@@ -126,16 +126,15 @@ class OrganizerServiceTest {
 		return new TestScenario(organizer, hackathon, winnerTeam, submission);
 	}
 
-	@SuppressWarnings("null")
 	private @NonNull DeclareWinnerRequest winnerRequest() {
 		return new DeclareWinnerRequest(20L);
 	}
 
 	private record TestScenario(
-		User organizer,
-		Hackathon hackathon,
-		Team winnerTeam,
-		Submission submission
+		@NonNull User organizer,
+		@NonNull Hackathon hackathon,
+		@NonNull Team winnerTeam,
+		@NonNull Submission submission
 	) {
 	}
 }

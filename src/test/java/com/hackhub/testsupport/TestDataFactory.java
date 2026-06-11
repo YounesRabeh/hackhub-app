@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.lang.NonNull;
 
-@SuppressWarnings("null")
 public final class TestDataFactory {
 
 	private TestDataFactory() {

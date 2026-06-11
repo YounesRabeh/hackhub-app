@@ -25,6 +25,7 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,13 +133,13 @@ class MentorServiceTest {
 		supportRequest.setAssignedMentor(mentor);
 		TestSecurity.authenticateAs(mentor);
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
-			when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
-			when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-			when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(invocation -> {
-				MentorCallProposal proposal = callProposalArgument(invocation);
-				proposal.setId(60L);
-				return proposal;
-			});
+		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
+		when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
+		when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(invocation -> {
+			MentorCallProposal proposal = callProposalArgument(invocation);
+			proposal.setId(60L);
+			return proposal;
+		});
 
 		var response = mentorService.proposeCall(
 			50L,
@@ -152,20 +153,18 @@ class MentorServiceTest {
 		verify(supportRequestRepository).save(supportRequest);
 	}
 
-	@SuppressWarnings("null")
 	private @NonNull CreateSupportRequestRequest validSupportRequest() {
 		return new CreateSupportRequestRequest("Deployment help", "We need help with deployment.");
 	}
 
-	@SuppressWarnings("null")
 	private @NonNull ProposeCallRequest validCallProposalRequest() {
-		return new ProposeCallRequest(LocalDateTime.now().plusDays(1));
+		LocalDateTime scheduledAt = Objects.requireNonNull(LocalDateTime.now()).plusDays(1);
+		return new ProposeCallRequest(scheduledAt);
 	}
 
-	@SuppressWarnings("null")
 	private static @NonNull MentorCallProposal callProposalArgument(
 		InvocationOnMock invocation
 	) {
-		return invocation.getArgument(0);
+		return Objects.requireNonNull(invocation.getArgument(0));
 	}
 }

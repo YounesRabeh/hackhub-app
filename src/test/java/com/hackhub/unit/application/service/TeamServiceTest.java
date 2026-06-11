@@ -11,6 +11,7 @@ import com.hackhub.infrastructure.repository.TeamRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,8 +85,7 @@ class TeamServiceTest {
 			.hasMessage("User already belongs to a team");
 	}
 
-	@SuppressWarnings("null")
 	private static @NonNull Team teamArgument(InvocationOnMock invocation) {
-		return invocation.getArgument(0);
+		return Objects.requireNonNull(invocation.getArgument(0));
 	}
 }

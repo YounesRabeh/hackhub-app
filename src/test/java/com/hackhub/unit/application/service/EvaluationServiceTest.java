@@ -17,6 +17,7 @@ import com.hackhub.infrastructure.repository.SubmissionRepository;
 import com.hackhub.infrastructure.repository.UserRepository;
 import com.hackhub.testsupport.TestDataFactory;
 import com.hackhub.testsupport.TestSecurity;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,13 +135,11 @@ class EvaluationServiceTest {
 		assertThat(response.comment()).isEqualTo("Updated score");
 	}
 
-	@SuppressWarnings("null")
 	private @NonNull CreateEvaluationRequest validEvaluationRequest() {
 		return new CreateEvaluationRequest(9, "Excellent project");
 	}
 
-	@SuppressWarnings("null")
 	private static @NonNull Evaluation evaluationArgument(InvocationOnMock invocation) {
-		return invocation.getArgument(0);
+		return Objects.requireNonNull(invocation.getArgument(0));
 	}
 }
