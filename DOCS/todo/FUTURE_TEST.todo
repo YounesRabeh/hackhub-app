@@ -1,93 +1,111 @@
 # Needed Test Cases
-
+!! > SEE FUTURE_DEV punto 10 
 ## System
 
-- Verify application context starts with default test profile.
-- Verify all controllers are reachable through Spring MVC routing.
-- Verify global error response shape for validation, not found, conflict, unauthorized, and forbidden errors.
-- Verify OpenAPI/Swagger endpoint starts and includes secured endpoints.
-- Verify database migrations/schema creation work for test and dev profiles.
-- Verify fake external clients are active in dev/test profiles and real clients are not used accidentally.
-- Verify endpoint coverage tracking records only controller routes.
-- Verify health/basic startup behavior with empty database.
+- [x] Verify application context starts with default test profile.
+- [ ] Verify all controllers are reachable through Spring MVC routing.
+- [ ] Verify global error response shape for validation, not found, conflict, unauthorized, and forbidden errors.
+- [ ] Verify OpenAPI/Swagger endpoint starts and includes secured endpoints.
+- [ ] Verify database migrations/schema creation work for test and dev profiles.
+- [ ] Verify fake external clients are active in dev/test profiles and real clients are not used accidentally.
+- [x] Verify endpoint coverage tracking records controller routes.
+- [ ] Verify health/basic startup behavior with empty database.
 
 ## Auth
 
-- Register user with valid email/password returns JWT and normalized email.
-- Register rejects duplicate email case-insensitively.
-- Register rejects invalid email, short password, blank fields, and malformed JSON.
-- Login returns JWT for valid credentials.
-- Login accepts email with different case.
-- Login rejects wrong password.
-- Login rejects unknown email.
-- Current-user endpoint returns authenticated user data.
-- Protected endpoints reject missing token.
-- Protected endpoints reject malformed token.
-- Protected endpoints reject expired/invalid-signature token.
-- Auth response never exposes password hash.
+- [x] Register user with valid email/password returns JWT and normalized email.
+- [x] Register rejects duplicate email case-insensitively.
+- [x] Register rejects invalid email and short password.
+- [ ] Register rejects blank fields and malformed JSON.
+- [x] Login returns JWT for valid credentials.
+- [x] Login accepts email with different case.
+- [x] Login rejects wrong password.
+- [ ] Login rejects unknown email.
+- [x] Current-user endpoint returns authenticated user data.
+- [x] Protected endpoints reject missing token.
+- [ ] Protected endpoints reject malformed token.
+- [ ] Protected endpoints reject expired/invalid-signature token.
+- [ ] Auth response never exposes password hash.
 
 ## Roles
 
-- `USER` cannot create hackathons.
-- `ORGANIZER` can create and manage own hackathons.
-- Non-organizer cannot add mentors or judges.
-- Organizer cannot assign a user as mentor unless user role is `MENTOR`.
-- Organizer cannot assign a user as judge unless user role is `JUDGE`.
-- Mentor can view support requests only for assigned hackathons.
-- Judge can view/evaluate submissions only for assigned hackathons.
-- User cannot view staff-only submission/evaluation/report endpoints.
-- Organizer can view registrations, reports, submissions, and evaluations for own hackathon.
-- Cross-hackathon staff access is denied.
+- [x] `USER` cannot create hackathons.
+- [x] `ORGANIZER` can create and manage own hackathons.
+- [ ] Non-organizer cannot add mentors or judges.
+- [x] Organizer cannot assign a user as mentor unless user role is `MENTOR`.
+- [x] Organizer cannot assign a user as judge unless user role is `JUDGE`.
+- [x] Mentor can view support requests for assigned hackathons.
+- [ ] Mentor is denied support requests for unassigned hackathons.
+- [x] Judge can evaluate submissions only for assigned hackathons.
+- [ ] Judge can view submissions only for assigned hackathons.
+- [ ] User cannot view staff-only submission/evaluation/report endpoints.
+- [x] Organizer can view registrations, reports, submissions, and evaluations for own hackathon.
+- [ ] Cross-hackathon staff access is denied.
 
 ## Lifecycle
 
-- Hackathon starts in `REGISTRATION_OPEN` after creation.
-- Reject invalid date ordering during hackathon creation.
-- Allow valid status transition `REGISTRATION_OPEN` -> `IN_PROGRESS`.
-- Allow valid status transition `IN_PROGRESS` -> `EVALUATION`.
-- Allow valid status transition `EVALUATION` -> `FINISHED`.
-- Reject invalid status transitions.
-- Reject registration after registration deadline.
-- Reject submission before submission phase or after submission deadline.
-- Reject evaluation before evaluation phase.
-- Reject winner declaration before evaluation phase.
-- Reject winner declaration if any submission is unevaluated.
-- Reject winner declaration if winner team has no submission.
-- Mark hackathon `FINISHED` after declaring winner.
-- Prevent declaring winner twice.
+- [x] Hackathon starts in `REGISTRATION_OPEN` after creation.
+- [x] Reject invalid date ordering during hackathon creation.
+- [x] Allow valid status transition `REGISTRATION_OPEN` -> `IN_PROGRESS`.
+- [x] Allow valid status transition `IN_PROGRESS` -> `EVALUATION`.
+- [x] Allow valid status transition `EVALUATION` -> `FINISHED`.
+- [x] Reject invalid status transitions.
+- [ ] Reject registration after registration deadline.
+- [ ] Reject submission before submission phase.
+- [x] Reject submission after submission deadline.
+- [ ] Reject evaluation before evaluation phase.
+- [ ] Reject winner declaration before evaluation phase.
+- [x] Reject winner declaration if any submission is unevaluated.
+- [ ] Reject winner declaration if winner team has no submission.
+- [x] Mark hackathon `FINISHED` after declaring winner.
+- [ ] Prevent declaring winner twice.
 
 ## Flow
 
-- Full happy path: register, login, create hackathon, create team, invite member, accept invite, register team, submit, evaluate, declare winner.
-- Invite flow rejects non-team-member inviter.
-- Invite flow rejects inviting user already on a team.
-- Invite flow rejects duplicate invitation.
-- Invitee can accept pending invitation.
-- Invitee can decline pending invitation.
-- Non-invitee cannot accept/decline invitation.
-- Accepted/declined invitation cannot be answered again.
-- Team registration requires current user to be team member.
-- Team registration rejects already registered team.
-- Team registration rejects team over max size.
-- Submission upsert creates new submission.
-- Submission upsert updates existing submission.
-- My-team submission endpoint returns current team submission.
-- Support request creation requires hackathon in progress and registered team member.
-- Mentor call proposal marks support request as call proposed and stores external booking data.
-- Rule violation report requires mentor access and registered reported team.
-- Organizer can list rule violation reports.
-- Payment transaction is created when winner is declared.
+- [x] Full happy path: register, login, create hackathon, create team, invite member, accept invite, register team, submit, evaluate, declare winner.
+- [ ] Invite flow rejects non-team-member inviter.
+- [ ] Invite flow rejects inviting user already on a team.
+- [ ] Invite flow rejects duplicate invitation.
+- [x] Invitee can accept pending invitation.
+- [x] Invitee can decline pending invitation.
+- [ ] Non-invitee cannot accept/decline invitation.
+- [ ] Accepted/declined invitation cannot be answered again.
+- [x] Team registration works for a current team member.
+- [ ] Team registration rejects current user who is not a team member.
+- [ ] Team registration rejects already registered team.
+- [ ] Team registration rejects team over max size.
+- [x] Submission upsert creates new submission.
+- [ ] Submission upsert updates existing submission.
+- [x] My-team submission endpoint returns current team submission.
+- [x] Support request creation requires hackathon in progress.
+- [x] Support request creation requires registered team member.
+- [x] Mentor call proposal marks support request as call proposed and stores external booking data.
+- [x] Rule violation report can be created by a mentor with access.
+- [ ] Rule violation report rejects mentor without access.
+- [ ] Rule violation report rejects unregistered reported team.
+- [x] Organizer can list rule violation reports.
+- [x] Payment transaction is created when winner is declared.
 
-## System Tests
+## Service Unit Tests
 
-- Run full clean automated suite: `GRADLE_USER_HOME=.gradle-home ./gradlew clean test --no-daemon`.
-- Run app in dev profile and execute documented manual flow from `TEST.md`.
-- Verify seeded dev users can log in with documented credentials.
-- Verify seeded demo hackathon appears only when database has no hackathons.
-- Verify H2/dev startup can be repeated without duplicate seed data.
-- Verify fake payment and calendar clients return deterministic fake IDs/URLs.
-- Verify generated test reports contain zero failures and zero errors.
-- Verify endpoint coverage threshold task passes.
-- Verify unauthorized requests consistently return HTTP 401.
-- Verify forbidden role requests consistently return HTTP 403.
-- Verify validation failures consistently return HTTP 400 with field details.
+- [x] Team creation adds creator as first member.
+- [x] Team creation rejects user already in a team.
+- [x] Submission listing rejects unassigned staff.
+- [x] Evaluation creates a new evaluation when one does not exist.
+- [x] Evaluation updates an existing evaluation.
+- [x] Payment prize stores `COMPLETED` when the payment client succeeds.
+- [x] Payment prize stores `FAILED` when the payment client fails.
+
+## System Tests (last to be done, maybe)
+
+- [ ] Run full clean automated suite: `GRADLE_USER_HOME=.gradle-home ./gradlew clean test --no-daemon`.
+- [ ] Run app in dev profile and execute documented manual flow from `TEST.md`.
+- [ ] Verify seeded dev users can log in with documented credentials.
+- [ ] Verify seeded demo hackathon appears only when database has no hackathons.
+- [ ] Verify H2/dev startup can be repeated without duplicate seed data.
+- [ ] Verify fake payment and calendar clients return deterministic fake IDs/URLs.
+- [ ] Verify generated test reports contain zero failures and zero errors.
+- [x] Verify endpoint coverage threshold task passes.
+- [x] Verify unauthorized requests consistently return HTTP 401.
+- [x] Verify forbidden role requests consistently return HTTP 403.
+- [x] Verify validation failures consistently return HTTP 400 with field details.
