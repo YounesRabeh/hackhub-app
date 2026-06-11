@@ -9,7 +9,7 @@ plugins {
 	// Enables Java compilation and testing support.
 	id 'java'
 	// Adds Spring Boot build and packaging support.
-	id 'org.springframework.boot' version '3.5.14'
+	id 'org.springframework.boot' version '3.5.15'
 	// Imports Spring's managed dependency versions.
 	id 'io.spring.dependency-management' version '1.1.7'
 }

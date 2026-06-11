@@ -56,11 +56,9 @@ class TeamServiceTest {
 		TestSecurity.authenticateAs(user);
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.empty());
-		when(teamRepository.save(any(Team.class))).thenAnswer(invocation -> {
-			Team team = teamArgument(invocation);
-			team.setId(10L);
-			return team;
-		});
+		when(teamRepository.save(any(Team.class))).thenAnswer(
+			TeamServiceTest::savedTeam
+		);
 
 		var response = teamService.createTeam(new CreateTeamRequest(" CodeStorm "));
 
@@ -85,7 +83,9 @@ class TeamServiceTest {
 			.hasMessage("User already belongs to a team");
 	}
 
-	private static @NonNull Team teamArgument(InvocationOnMock invocation) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+	private static @NonNull Team savedTeam(InvocationOnMock invocation) {
+		Team team = Objects.requireNonNull(invocation.getArgument(0, Team.class));
+		team.setId(10L);
+		return team;
 	}
 }

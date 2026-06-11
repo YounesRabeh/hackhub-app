@@ -135,11 +135,9 @@ class MentorServiceTest {
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
 		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
 		when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-		when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(invocation -> {
-			MentorCallProposal proposal = callProposalArgument(invocation);
-			proposal.setId(60L);
-			return proposal;
-		});
+		when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(
+			MentorServiceTest::savedCallProposal
+		);
 
 		var response = mentorService.proposeCall(
 			50L,
@@ -158,13 +156,20 @@ class MentorServiceTest {
 	}
 
 	private @NonNull ProposeCallRequest validCallProposalRequest() {
-		LocalDateTime scheduledAt = Objects.requireNonNull(LocalDateTime.now()).plusDays(1);
-		return new ProposeCallRequest(scheduledAt);
+		return new ProposeCallRequest(tomorrow());
 	}
 
-	private static @NonNull MentorCallProposal callProposalArgument(
+	private static @NonNull LocalDateTime tomorrow() {
+		return Objects.requireNonNull(LocalDateTime.now()).plusDays(1);
+	}
+
+	private static @NonNull MentorCallProposal savedCallProposal(
 		InvocationOnMock invocation
 	) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+		MentorCallProposal proposal = Objects.requireNonNull(
+			invocation.getArgument(0, MentorCallProposal.class)
+		);
+		proposal.setId(60L);
+		return proposal;
 	}
 }

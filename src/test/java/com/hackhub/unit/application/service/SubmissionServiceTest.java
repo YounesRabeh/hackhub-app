@@ -127,11 +127,9 @@ class SubmissionServiceTest {
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.of(team));
 		when(registrationRepository.existsByHackathonAndTeam(hackathon, team)).thenReturn(true);
 		when(submissionRepository.findByHackathonAndTeam(hackathon, team)).thenReturn(Optional.empty());
-		when(submissionRepository.save(any(Submission.class))).thenAnswer(invocation -> {
-			Submission submission = submissionArgument(invocation);
-			submission.setId(30L);
-			return submission;
-		});
+		when(submissionRepository.save(any(Submission.class))).thenAnswer(
+			SubmissionServiceTest::savedSubmission
+		);
 
 		var response = submissionService.upsertMyTeamSubmission(10L, validSubmissionRequest());
 
@@ -163,7 +161,11 @@ class SubmissionServiceTest {
 		);
 	}
 
-	private static @NonNull Submission submissionArgument(InvocationOnMock invocation) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+	private static @NonNull Submission savedSubmission(InvocationOnMock invocation) {
+		Submission submission = Objects.requireNonNull(
+			invocation.getArgument(0, Submission.class)
+		);
+		submission.setId(30L);
+		return submission;
 	}
 }

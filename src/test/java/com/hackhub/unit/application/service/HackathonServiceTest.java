@@ -142,11 +142,9 @@ class HackathonServiceTest {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		TestSecurity.authenticateAs(organizer);
 		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
-		when(hackathonRepository.save(any(Hackathon.class))).thenAnswer(invocation -> {
-			Hackathon hackathon = hackathonArgument(invocation);
-			hackathon.setId(10L);
-			return hackathon;
-		});
+		when(hackathonRepository.save(any(Hackathon.class))).thenAnswer(
+			HackathonServiceTest::savedHackathon
+		);
 
 		var response = hackathonService.createHackathon(validCreateRequest());
 
@@ -167,7 +165,11 @@ class HackathonServiceTest {
 		);
 	}
 
-	private static @NonNull Hackathon hackathonArgument(InvocationOnMock invocation) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+	private static @NonNull Hackathon savedHackathon(InvocationOnMock invocation) {
+		Hackathon hackathon = Objects.requireNonNull(
+			invocation.getArgument(0, Hackathon.class)
+		);
+		hackathon.setId(10L);
+		return hackathon;
 	}
 }

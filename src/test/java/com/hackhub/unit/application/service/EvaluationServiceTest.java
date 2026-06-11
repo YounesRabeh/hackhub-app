@@ -98,11 +98,9 @@ class EvaluationServiceTest {
 		when(submissionRepository.findById(30L)).thenReturn(Optional.of(submission));
 		when(staffAccessService.isJudgeOf(judge, hackathon)).thenReturn(true);
 		when(evaluationRepository.findBySubmission(submission)).thenReturn(Optional.empty());
-		when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(invocation -> {
-			Evaluation evaluation = evaluationArgument(invocation);
-			evaluation.setId(40L);
-			return evaluation;
-		});
+		when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(
+			EvaluationServiceTest::savedEvaluation
+		);
 
 		var response = evaluationService.evaluateSubmission(30L, validEvaluationRequest());
 
@@ -139,7 +137,11 @@ class EvaluationServiceTest {
 		return new CreateEvaluationRequest(9, "Excellent project");
 	}
 
-	private static @NonNull Evaluation evaluationArgument(InvocationOnMock invocation) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+	private static @NonNull Evaluation savedEvaluation(InvocationOnMock invocation) {
+		Evaluation evaluation = Objects.requireNonNull(
+			invocation.getArgument(0, Evaluation.class)
+		);
+		evaluation.setId(40L);
+		return evaluation;
 	}
 }

@@ -52,11 +52,9 @@ class PaymentPrizeServiceTest {
 		);
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
 		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
-		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> {
-			PaymentTransaction transaction = paymentTransactionArgument(invocation);
-			transaction.setId(30L);
-			return transaction;
-		});
+		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
+			PaymentPrizeServiceTest::savedCompletedTransaction
+		);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
@@ -80,7 +78,7 @@ class PaymentPrizeServiceTest {
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
 		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
 		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
-			PaymentPrizeServiceTest::paymentTransactionArgument
+			PaymentPrizeServiceTest::savedTransaction
 		);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
@@ -90,9 +88,19 @@ class PaymentPrizeServiceTest {
 		assertThat(transaction.getCompletedAt()).isNull();
 	}
 
-	private static @NonNull PaymentTransaction paymentTransactionArgument(
+	private static @NonNull PaymentTransaction savedCompletedTransaction(
 		InvocationOnMock invocation
 	) {
-		return Objects.requireNonNull(invocation.getArgument(0));
+		PaymentTransaction transaction = savedTransaction(invocation);
+		transaction.setId(30L);
+		return transaction;
+	}
+
+	private static @NonNull PaymentTransaction savedTransaction(
+		InvocationOnMock invocation
+	) {
+		return Objects.requireNonNull(
+			invocation.getArgument(0, PaymentTransaction.class)
+		);
 	}
 }
