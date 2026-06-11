@@ -86,6 +86,31 @@ appmap {
 	debugFile = file("$buildDir/appmap/agent.log")
 }
 
+tasks.register('appmap-listen', Exec) {
+	group = 'application'
+	description = 'Builds the boot jar and runs it with the AppMap Java agent.'
+
+	dependsOn tasks.named('bootJar')
+
+	doFirst {
+		def agentJar = file("${System.getProperty('user.home')}/.appmap/lib/java/appmap.jar")
+		if (!agentJar.exists()) {
+			throw new GradleException("AppMap Java agent not found at ${agentJar}. Install the AppMap extension or download appmap.jar.")
+		}
+
+		def bootJarFile = tasks.named('bootJar').get().archiveFile.get().asFile
+		commandLine(
+			'java',
+			"-javaagent:${agentJar.absolutePath}",
+			'-Dappmap.config.file=appmap.yml',
+			'-Dappmap.output.directory=tmp/appmap',
+			'-jar',
+			bootJarFile.absolutePath,
+			'--spring.profiles.active=dev'
+		)
+	}
+}
+
 tasks.register('cov', Test) {
 	group = 'verification'
 	description = 'Runs endpoint coverage integration test with threshold enforcement.'

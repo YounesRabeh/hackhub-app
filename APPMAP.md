@@ -82,6 +82,12 @@ Record AppMaps from tests:
 ./gradlew appmap test
 ```
 
+Build and run the Spring Boot app with live AppMap request recording:
+
+```bash
+./gradlew appmap-listen
+```
+
 ## Live HTTP Request Recording
 
 For live Spring Boot request recording, run the application with the AppMap Java
@@ -94,22 +100,14 @@ at:
 $HOME/.appmap/lib/java/appmap.jar
 ```
 
-Build the boot jar:
-
-```bash
-./gradlew bootJar
-```
-
 Run the application with AppMap:
 
 ```bash
-java \
-  -javaagent:$HOME/.appmap/lib/java/appmap.jar \
-  -Dappmap.config.file=appmap.yml \
-  -Dappmap.output.directory=tmp/appmap \
-  -jar build/libs/hackhub-0.9.2.jar \
-  --spring.profiles.active=dev
+./gradlew appmap-listen
 ```
+
+This task runs `bootJar` first, then starts the generated jar with the AppMap
+Java agent, `appmap.yml`, `tmp/appmap`, and the Spring `dev` profile.
 
 Then use the API normally, for example through Swagger:
 
