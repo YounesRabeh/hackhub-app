@@ -18,7 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,7 +56,7 @@ class TeamServiceTest {
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.empty());
 		when(teamRepository.save(any(Team.class))).thenAnswer(invocation -> {
-			Team team = invocation.getArgument(0);
+			Team team = teamArgument(invocation);
 			team.setId(10L);
 			return team;
 		});
@@ -80,5 +82,10 @@ class TeamServiceTest {
 		assertThatThrownBy(() -> teamService.createTeam(new CreateTeamRequest("Second Team")))
 			.isInstanceOf(ConflictException.class)
 			.hasMessage("User already belongs to a team");
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull Team teamArgument(InvocationOnMock invocation) {
+		return invocation.getArgument(0);
 	}
 }

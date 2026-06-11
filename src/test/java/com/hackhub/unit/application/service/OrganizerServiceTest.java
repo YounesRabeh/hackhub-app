@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -89,7 +90,7 @@ class OrganizerServiceTest {
 		TestScenario scenario = prepareScenario();
 		when(evaluationRepository.findBySubmission(scenario.submission())).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> organizerService.declareWinner(10L, new DeclareWinnerRequest(20L)))
+		assertThatThrownBy(() -> organizerService.declareWinner(10L, winnerRequest()))
 			.isInstanceOf(BadRequestException.class)
 			.hasMessage("All submissions must be evaluated");
 	}
@@ -101,7 +102,7 @@ class OrganizerServiceTest {
 		when(evaluationRepository.findBySubmission(scenario.submission())).thenReturn(Optional.of(evaluation));
 		when(hackathonRepository.save(scenario.hackathon())).thenReturn(scenario.hackathon());
 
-		var response = organizerService.declareWinner(10L, new DeclareWinnerRequest(20L));
+		var response = organizerService.declareWinner(10L, winnerRequest());
 
 		assertThat(response.winnerTeamId()).isEqualTo(20L);
 		assertThat(response.status()).isEqualTo(HackathonStatus.FINISHED);
@@ -123,6 +124,11 @@ class OrganizerServiceTest {
 		when(submissionRepository.findByHackathonAndTeam(hackathon, winnerTeam)).thenReturn(Optional.of(submission));
 		when(submissionRepository.findAllByHackathon(hackathon)).thenReturn(List.of(submission));
 		return new TestScenario(organizer, hackathon, winnerTeam, submission);
+	}
+
+	@SuppressWarnings("null")
+	private @NonNull DeclareWinnerRequest winnerRequest() {
+		return new DeclareWinnerRequest(20L);
 	}
 
 	private record TestScenario(

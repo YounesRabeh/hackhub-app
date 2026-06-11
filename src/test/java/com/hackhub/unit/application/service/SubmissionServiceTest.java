@@ -27,7 +27,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -125,7 +127,7 @@ class SubmissionServiceTest {
 		when(registrationRepository.existsByHackathonAndTeam(hackathon, team)).thenReturn(true);
 		when(submissionRepository.findByHackathonAndTeam(hackathon, team)).thenReturn(Optional.empty());
 		when(submissionRepository.save(any(Submission.class))).thenAnswer(invocation -> {
-			Submission submission = invocation.getArgument(0);
+			Submission submission = submissionArgument(invocation);
 			submission.setId(30L);
 			return submission;
 		});
@@ -151,12 +153,18 @@ class SubmissionServiceTest {
 			.hasMessage("Only assigned staff can view submissions");
 	}
 
-	private UpsertSubmissionRequest validSubmissionRequest() {
+	@SuppressWarnings("null")
+	private @NonNull UpsertSubmissionRequest validSubmissionRequest() {
 		return new UpsertSubmissionRequest(
 			"AI Study Buddy",
 			"https://github.com/example/study-buddy",
 			"https://demo.example.com/study-buddy",
 			"A tool for study planning"
 		);
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull Submission submissionArgument(InvocationOnMock invocation) {
+		return invocation.getArgument(0);
 	}
 }

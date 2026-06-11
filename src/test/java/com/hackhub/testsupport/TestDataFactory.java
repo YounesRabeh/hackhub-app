@@ -14,13 +14,15 @@ import com.hackhub.domain.model.TeamInvitation;
 import com.hackhub.domain.model.User;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import org.springframework.lang.NonNull;
 
+@SuppressWarnings("null")
 public final class TestDataFactory {
 
 	private TestDataFactory() {
 	}
 
-	public static User user(Long id, Role role) {
+	public static @NonNull User user(Long id, Role role) {
 		User user = new User();
 		user.setId(id);
 		user.setEmail("user" + id + "@example.com");
@@ -29,7 +31,7 @@ public final class TestDataFactory {
 		return user;
 	}
 
-	public static Hackathon hackathon(Long id, User organizer, HackathonStatus status) {
+	public static @NonNull Hackathon hackathon(Long id, User organizer, HackathonStatus status) {
 		LocalDateTime now = LocalDateTime.now();
 		Hackathon hackathon = new Hackathon();
 		hackathon.setId(id);
@@ -45,7 +47,7 @@ public final class TestDataFactory {
 		return hackathon;
 	}
 
-	public static Team team(Long id, User createdBy, User... members) {
+	public static @NonNull Team team(Long id, User createdBy, User... members) {
 		Team team = new Team();
 		team.setId(id);
 		team.setName("Team " + id);
@@ -56,7 +58,11 @@ public final class TestDataFactory {
 		return team;
 	}
 
-	public static HackathonRegistration registration(Long id, Hackathon hackathon, Team team) {
+	public static @NonNull HackathonRegistration registration(
+		Long id,
+		Hackathon hackathon,
+		Team team
+	) {
 		HackathonRegistration registration = new HackathonRegistration();
 		registration.setId(id);
 		registration.setHackathon(hackathon);
@@ -65,7 +71,7 @@ public final class TestDataFactory {
 		return registration;
 	}
 
-	public static Submission submission(Long id, Hackathon hackathon, Team team) {
+	public static @NonNull Submission submission(Long id, Hackathon hackathon, Team team) {
 		Submission submission = new Submission();
 		submission.setId(id);
 		submission.setHackathon(hackathon);
@@ -79,7 +85,7 @@ public final class TestDataFactory {
 		return submission;
 	}
 
-	public static Evaluation evaluation(Long id, Submission submission, User judge) {
+	public static @NonNull Evaluation evaluation(Long id, Submission submission, User judge) {
 		Evaluation evaluation = new Evaluation();
 		evaluation.setId(id);
 		evaluation.setSubmission(submission);
@@ -90,7 +96,12 @@ public final class TestDataFactory {
 		return evaluation;
 	}
 
-	public static TeamInvitation invitation(Long id, Team team, User invitedUser, User invitedByUser) {
+	public static @NonNull TeamInvitation invitation(
+		Long id,
+		Team team,
+		User invitedUser,
+		User invitedByUser
+	) {
 		TeamInvitation invitation = new TeamInvitation();
 		invitation.setId(id);
 		invitation.setTeam(team);
@@ -101,7 +112,12 @@ public final class TestDataFactory {
 		return invitation;
 	}
 
-	public static SupportRequest supportRequest(Long id, Hackathon hackathon, Team team, User createdBy) {
+	public static @NonNull SupportRequest supportRequest(
+		Long id,
+		Hackathon hackathon,
+		Team team,
+		User createdBy
+	) {
 		SupportRequest supportRequest = new SupportRequest();
 		supportRequest.setId(id);
 		supportRequest.setHackathon(hackathon);

@@ -23,7 +23,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -138,12 +140,12 @@ class HackathonServiceTest {
 	void createHackathonSetsRegistrationOpenStatus() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		TestSecurity.authenticateAs(organizer);
-		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
-		when(hackathonRepository.save(any(Hackathon.class))).thenAnswer(invocation -> {
-			Hackathon hackathon = invocation.getArgument(0);
-			hackathon.setId(10L);
-			return hackathon;
-		});
+			when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
+			when(hackathonRepository.save(any(Hackathon.class))).thenAnswer(invocation -> {
+				Hackathon hackathon = hackathonArgument(invocation);
+				hackathon.setId(10L);
+				return hackathon;
+			});
 
 		var response = hackathonService.createHackathon(validCreateRequest());
 
@@ -151,7 +153,8 @@ class HackathonServiceTest {
 		assertThat(response.organizerId()).isEqualTo(1L);
 	}
 
-	private CreateHackathonRequest validCreateRequest() {
+	@SuppressWarnings("null")
+	private @NonNull CreateHackathonRequest validCreateRequest() {
 		LocalDateTime base = LocalDateTime.now().plusDays(3);
 		return new CreateHackathonRequest(
 			"HackHub Test",
@@ -162,5 +165,10 @@ class HackathonServiceTest {
 			base.plusDays(7),
 			new BigDecimal("1000.00")
 		);
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull Hackathon hackathonArgument(InvocationOnMock invocation) {
+		return invocation.getArgument(0);
 	}
 }

@@ -17,7 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,13 +49,13 @@ class PaymentPrizeServiceTest {
 			TestDataFactory.user(1L, Role.ORGANIZER),
 			HackathonStatus.FINISHED
 		);
-		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
-		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> {
-			PaymentTransaction transaction = invocation.getArgument(0);
-			transaction.setId(30L);
-			return transaction;
-		});
+			Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+			when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
+			when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> {
+				PaymentTransaction transaction = paymentTransactionArgument(invocation);
+				transaction.setId(30L);
+				return transaction;
+			});
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
@@ -73,15 +75,24 @@ class PaymentPrizeServiceTest {
 			10L,
 			TestDataFactory.user(1L, Role.ORGANIZER),
 			HackathonStatus.FINISHED
-		);
-		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
-		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+			);
+			Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+			when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
+			when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
+				PaymentPrizeServiceTest::paymentTransactionArgument
+			);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
 
 		assertThat(transaction.getExternalPaymentId()).isEqualTo("pay-failed");
 		assertThat(transaction.getStatus()).isEqualTo(PaymentStatus.FAILED);
 		assertThat(transaction.getCompletedAt()).isNull();
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull PaymentTransaction paymentTransactionArgument(
+		InvocationOnMock invocation
+	) {
+		return invocation.getArgument(0);
 	}
 }

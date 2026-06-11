@@ -31,7 +31,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -130,17 +132,17 @@ class MentorServiceTest {
 		supportRequest.setAssignedMentor(mentor);
 		TestSecurity.authenticateAs(mentor);
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
-		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
-		when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-		when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(invocation -> {
-			MentorCallProposal proposal = invocation.getArgument(0);
-			proposal.setId(60L);
-			return proposal;
-		});
+			when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
+			when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
+			when(callProposalRepository.save(any(MentorCallProposal.class))).thenAnswer(invocation -> {
+				MentorCallProposal proposal = callProposalArgument(invocation);
+				proposal.setId(60L);
+				return proposal;
+			});
 
 		var response = mentorService.proposeCall(
 			50L,
-			new ProposeCallRequest(LocalDateTime.now().plusDays(1))
+			validCallProposalRequest()
 		);
 
 		assertThat(response.id()).isEqualTo(60L);
@@ -150,7 +152,20 @@ class MentorServiceTest {
 		verify(supportRequestRepository).save(supportRequest);
 	}
 
-	private CreateSupportRequestRequest validSupportRequest() {
+	@SuppressWarnings("null")
+	private @NonNull CreateSupportRequestRequest validSupportRequest() {
 		return new CreateSupportRequestRequest("Deployment help", "We need help with deployment.");
+	}
+
+	@SuppressWarnings("null")
+	private @NonNull ProposeCallRequest validCallProposalRequest() {
+		return new ProposeCallRequest(LocalDateTime.now().plusDays(1));
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull MentorCallProposal callProposalArgument(
+		InvocationOnMock invocation
+	) {
+		return invocation.getArgument(0);
 	}
 }

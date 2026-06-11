@@ -10,7 +10,6 @@ import com.hackhub.domain.enums.Role;
 import com.hackhub.domain.model.Evaluation;
 import com.hackhub.domain.model.Hackathon;
 import com.hackhub.domain.model.Submission;
-import com.hackhub.domain.model.Team;
 import com.hackhub.domain.model.User;
 import com.hackhub.infrastructure.repository.EvaluationRepository;
 import com.hackhub.infrastructure.repository.HackathonRepository;
@@ -24,7 +23,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -97,7 +98,7 @@ class EvaluationServiceTest {
 		when(staffAccessService.isJudgeOf(judge, hackathon)).thenReturn(true);
 		when(evaluationRepository.findBySubmission(submission)).thenReturn(Optional.empty());
 		when(evaluationRepository.save(any(Evaluation.class))).thenAnswer(invocation -> {
-			Evaluation evaluation = invocation.getArgument(0);
+			Evaluation evaluation = evaluationArgument(invocation);
 			evaluation.setId(40L);
 			return evaluation;
 		});
@@ -133,7 +134,13 @@ class EvaluationServiceTest {
 		assertThat(response.comment()).isEqualTo("Updated score");
 	}
 
-	private CreateEvaluationRequest validEvaluationRequest() {
+	@SuppressWarnings("null")
+	private @NonNull CreateEvaluationRequest validEvaluationRequest() {
 		return new CreateEvaluationRequest(9, "Excellent project");
+	}
+
+	@SuppressWarnings("null")
+	private static @NonNull Evaluation evaluationArgument(InvocationOnMock invocation) {
+		return invocation.getArgument(0);
 	}
 }

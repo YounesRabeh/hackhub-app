@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.annotation.Import;
+import org.springframework.lang.NonNull;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @Import(EndpointCoverageTestConfiguration.class)
+@SuppressWarnings("null")
 public abstract class IntegrationTestSupport {
 
 	protected static final String PASSWORD = "Password123!";
@@ -53,11 +55,11 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected PasswordEncoder passwordEncoder;
 
-	protected String uniqueEmail() {
+	protected @NonNull String uniqueEmail() {
 		return "user+" + UUID.randomUUID() + "@example.com";
 	}
 
-	protected User saveUser(Role role) {
+	protected @NonNull User saveUser(Role role) {
 		User user = new User();
 		user.setEmail(uniqueEmail());
 		user.setPasswordHash(passwordEncoder.encode(PASSWORD));
@@ -65,98 +67,147 @@ public abstract class IntegrationTestSupport {
 		return userRepository.saveAndFlush(user);
 	}
 
-	protected String tokenFor(User user) throws Exception {
-		MvcResult login = postJson("/api/auth/login", loginPayload(user.getEmail(), PASSWORD))
+	protected @NonNull String tokenFor(User user) throws Exception {
+		User requiredUser = requiredUser(user, "User is required");
+		MvcResult login = postJson("/api/auth/login", loginPayload(requiredUser.getEmail(), PASSWORD))
 			.andExpect(status().isOk())
 			.andReturn();
 		return extractToken(login);
 	}
 
-	protected Long idFrom(MvcResult result) throws Exception {
-		return objectMapper.readTree(result.getResponse().getContentAsString()).path("id").asLong();
+	protected @NonNull Long idFrom(MvcResult result) throws Exception {
+		return objectMapper
+			.readTree(requiredResult(result).getResponse().getContentAsString())
+			.path("id")
+			.asLong();
 	}
 
-	protected Long nestedIdFrom(MvcResult result, String fieldName) throws Exception {
-		return objectMapper.readTree(result.getResponse().getContentAsString()).path(fieldName).asLong();
+	protected @NonNull Long nestedIdFrom(
+		MvcResult result,
+		String fieldName
+	) throws Exception {
+		return objectMapper
+			.readTree(requiredResult(result).getResponse().getContentAsString())
+			.path(requiredString(fieldName, "Field name is required"))
+			.asLong();
 	}
 
-	protected ResultActions get(String uri) throws Exception {
-		return mockMvc.perform(MockMvcRequestBuilders.get(uri));
+	protected @NonNull ResultActions get(String uri) throws Exception {
+		return mockMvc.perform(MockMvcRequestBuilders.get(requiredString(uri, "URI is required")));
 	}
 
-	protected ResultActions getWithBearer(String uri, String token) throws Exception {
+	protected @NonNull ResultActions getWithBearer(
+		String uri,
+		String token
+	) throws Exception {
 		return mockMvc.perform(
 			MockMvcRequestBuilders
-				.get(uri)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+				.get(requiredString(uri, "URI is required"))
+				.header(HttpHeaders.AUTHORIZATION, bearerToken(token))
 		);
 	}
 
-	protected ResultActions postJson(String uri, Object body) throws Exception {
+	protected @NonNull ResultActions postJson(
+		String uri,
+		Object body
+	) throws Exception {
 		return mockMvc.perform(
 			MockMvcRequestBuilders
-				.post(uri)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(body))
+				.post(requiredString(uri, "URI is required"))
+				.contentType(jsonMediaType())
+				.content(writeJson(body))
 		);
 	}
 
-	protected ResultActions postJsonWithBearer(String uri, String token, Object body) throws Exception {
+	protected @NonNull ResultActions postJsonWithBearer(
+		String uri,
+		String token,
+		Object body
+	) throws Exception {
 		return mockMvc.perform(
 			MockMvcRequestBuilders
-				.post(uri)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(body))
+				.post(requiredString(uri, "URI is required"))
+				.header(HttpHeaders.AUTHORIZATION, bearerToken(token))
+				.contentType(jsonMediaType())
+				.content(writeJson(body))
 		);
 	}
 
-	protected ResultActions putJsonWithBearer(String uri, String token, Object body) throws Exception {
+	protected @NonNull ResultActions putJsonWithBearer(
+		String uri,
+		String token,
+		Object body
+	) throws Exception {
 		return mockMvc.perform(
 			MockMvcRequestBuilders
-				.put(uri)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(body))
+				.put(requiredString(uri, "URI is required"))
+				.header(HttpHeaders.AUTHORIZATION, bearerToken(token))
+				.contentType(jsonMediaType())
+				.content(writeJson(body))
 		);
 	}
 
-	protected ResultActions patchJsonWithBearer(String uri, String token, Object body) throws Exception {
+	protected @NonNull ResultActions patchJsonWithBearer(
+		String uri,
+		String token,
+		Object body
+	) throws Exception {
 		return mockMvc.perform(
 			MockMvcRequestBuilders
-				.patch(uri)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(body))
+				.patch(requiredString(uri, "URI is required"))
+				.header(HttpHeaders.AUTHORIZATION, bearerToken(token))
+				.contentType(jsonMediaType())
+				.content(writeJson(body))
 		);
 	}
 
-	protected String extractToken(MvcResult result) throws Exception {
-		JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+	protected @NonNull String extractToken(MvcResult result) throws Exception {
+		JsonNode json = objectMapper.readTree(
+			requiredResult(result).getResponse().getContentAsString()
+		);
 		return json.path("token").asText();
 	}
 
-	protected Map<String, String> registerPayload(String email, String password) {
-		return Map.of("email", email, "password", password);
+	protected @NonNull Map<String, String> registerPayload(
+		String email,
+		String password
+	) {
+		return Map.of(
+			"email",
+			requiredString(email, "Email is required"),
+			"password",
+			requiredString(password, "Password is required")
+		);
 	}
 
-	protected Map<String, String> loginPayload(String email, String password) {
-		return Map.of("email", email, "password", password);
+	protected @NonNull Map<String, String> loginPayload(
+		String email,
+		String password
+	) {
+		return Map.of(
+			"email",
+			requiredString(email, "Email is required"),
+			"password",
+			requiredString(password, "Password is required")
+		);
 	}
 
-	protected Map<String, Object> createTeamPayload(String name) {
-		return Map.of("name", name);
+	protected @NonNull Map<String, Object> createTeamPayload(String name) {
+		return Map.of("name", requiredString(name, "Team name is required"));
 	}
 
-	protected Map<String, Object> createInvitationPayload(Long invitedUserId) {
-		return Map.of("invitedUserId", invitedUserId);
+	protected @NonNull Map<String, Object> createInvitationPayload(Long invitedUserId) {
+		return Map.of(
+			"invitedUserId",
+			requiredLong(invitedUserId, "Invited user ID is required")
+		);
 	}
 
-	protected Map<String, Object> registerTeamPayload(Long teamId) {
-		return Map.of("teamId", teamId);
+	protected @NonNull Map<String, Object> registerTeamPayload(Long teamId) {
+		return Map.of("teamId", requiredLong(teamId, "Team ID is required"));
 	}
 
-	protected Map<String, Object> submissionPayload() {
+	protected @NonNull Map<String, Object> submissionPayload() {
 		return Map.of(
 			"projectName", "AI Study Buddy",
 			"repositoryUrl", "https://github.com/hackhub/ai-study-buddy",
@@ -165,29 +216,98 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-	protected Map<String, Object> evaluationPayload(int score) {
+	protected @NonNull Map<String, Object> evaluationPayload(int score) {
 		return Map.of("score", score, "comment", "Strong implementation");
 	}
 
-	protected Map<String, Object> winnerPayload(Long teamId) {
-		return Map.of("winnerTeamId", teamId);
+	protected @NonNull Map<String, Object> winnerPayload(Long teamId) {
+		return Map.of("winnerTeamId", requiredLong(teamId, "Winner team ID is required"));
 	}
 
 	protected void assignJudge(Hackathon hackathon, User judge) {
-		hackathon.getJudges().add(judge);
-		hackathonRepository.saveAndFlush(hackathon);
+		Hackathon requiredHackathon = requiredHackathon(hackathon, "Hackathon is required");
+		requiredHackathon.getJudges().add(requiredUser(judge, "Judge is required"));
+		hackathonRepository.saveAndFlush(requiredHackathon);
 	}
 
 	protected void assignMentor(Hackathon hackathon, User mentor) {
-		hackathon.getMentors().add(mentor);
-		hackathonRepository.saveAndFlush(hackathon);
+		Hackathon requiredHackathon = requiredHackathon(hackathon, "Hackathon is required");
+		requiredHackathon.getMentors().add(requiredUser(mentor, "Mentor is required"));
+		hackathonRepository.saveAndFlush(requiredHackathon);
 	}
 
-	protected Team reloadTeam(Long teamId) {
-		return teamRepository.findById(teamId).orElseThrow();
+	protected @NonNull Team reloadTeam(Long teamId) {
+		return teamRepository
+			.findById(requiredLong(teamId, "Team ID is required"))
+			.orElseThrow();
 	}
 
-	protected Hackathon reloadHackathon(Long hackathonId) {
-		return hackathonRepository.findById(hackathonId).orElseThrow();
+	protected @NonNull Hackathon reloadHackathon(Long hackathonId) {
+		return hackathonRepository
+			.findById(requiredLong(hackathonId, "Hackathon ID is required"))
+			.orElseThrow();
+	}
+
+	@NonNull
+	private MediaType jsonMediaType() {
+		return MediaType.APPLICATION_JSON;
+	}
+
+	@NonNull
+	private String writeJson(Object body) throws Exception {
+		return objectMapper.writeValueAsString(requiredObject(body, "Body is required"));
+	}
+
+	@NonNull
+	private String bearerToken(String token) {
+		return "Bearer " + requiredString(token, "Token is required");
+	}
+
+	@NonNull
+	private String requiredString(String value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
+
+	@NonNull
+	private Long requiredLong(Long value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
+
+	@NonNull
+	private Object requiredObject(Object value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
+
+	@NonNull
+	private MvcResult requiredResult(MvcResult value) {
+		if (value == null) {
+			throw new IllegalArgumentException("MVC result is required");
+		}
+		return value;
+	}
+
+	@NonNull
+	private User requiredUser(User value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
+
+	@NonNull
+	private Hackathon requiredHackathon(Hackathon value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
 	}
 }
