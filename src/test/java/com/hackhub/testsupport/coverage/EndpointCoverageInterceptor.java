@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -19,9 +20,9 @@ public class EndpointCoverageInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(
-		HttpServletRequest request,
-		HttpServletResponse response,
-		Object handler
+		@NonNull HttpServletRequest request,
+		@NonNull HttpServletResponse response,
+		@NonNull Object handler
 	) {
 		if (!(handler instanceof HandlerMethod handlerMethod)) {
 			return true;

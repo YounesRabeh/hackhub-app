@@ -21,6 +21,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -157,8 +158,8 @@ public class HackathonController {
 	)
 	public SubmissionResponse upsertMyTeamSubmission(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId,
-		@Valid @RequestBody UpsertSubmissionRequest request
+		@PathVariable("hackathonId") @NonNull Long hackathonId,
+		@Valid @RequestBody @NonNull UpsertSubmissionRequest request
 	) {
 		return submissionService.upsertMyTeamSubmission(hackathonId, request);
 	}
@@ -171,7 +172,7 @@ public class HackathonController {
 	)
 	public SubmissionResponse getMyTeamSubmission(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId
+		@PathVariable("hackathonId") @NonNull Long hackathonId
 	) {
 		return submissionService.getMyTeamSubmission(hackathonId);
 	}
@@ -184,7 +185,7 @@ public class HackathonController {
 	)
 	public List<SubmissionResponse> listSubmissions(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId
+		@PathVariable("hackathonId") @NonNull Long hackathonId
 	) {
 		return submissionService.listHackathonSubmissions(hackathonId);
 	}

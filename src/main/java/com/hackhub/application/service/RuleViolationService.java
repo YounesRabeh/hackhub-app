@@ -2,6 +2,7 @@ package com.hackhub.application.service;
 
 import com.hackhub.api.dto.request.ReportViolationRequest;
 import com.hackhub.api.dto.response.RuleViolationReportResponse;
+import com.hackhub.api.exception.BadRequestException;
 import com.hackhub.api.exception.ForbiddenException;
 import com.hackhub.api.exception.NotFoundException;
 import com.hackhub.domain.model.Hackathon;
@@ -16,6 +17,7 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,13 +36,20 @@ public class RuleViolationService {
 
 	@Transactional
 	public RuleViolationReportResponse createReport(
-		Long hackathonId,
-		ReportViolationRequest request
+		@NonNull Long hackathonId,
+		@NonNull ReportViolationRequest request
 	) {
+		ReportViolationRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
+		Long reportedTeamId = requiredId(
+			requiredRequest.reportedTeamId(),
+			"Reported team ID is required"
+		);
 		Team reportedTeam = teamRepository
-			.findById(request.reportedTeamId())
+			.findById(reportedTeamId)
 			.orElseThrow(() -> new NotFoundException("Reported team not found"));
 
 		if (!staffAccessService.isMentorOf(currentUser, hackathon)) {
@@ -55,16 +64,18 @@ public class RuleViolationService {
 		report.setHackathon(hackathon);
 		report.setReportedTeam(reportedTeam);
 		report.setReportedByUser(currentUser);
-		report.setDescription(request.description().trim());
+		report.setDescription(requiredRequest.description().trim());
 		report.setCreatedAt(LocalDateTime.now());
 
 		return toResponse(ruleViolationReportRepository.save(report));
 	}
 
 	@Transactional(readOnly = true)
-	public List<RuleViolationReportResponse> listReports(Long hackathonId) {
+	public List<RuleViolationReportResponse> listReports(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 
 		if (!staffAccessService.isOrganizerOf(currentUser, hackathon)) {
 			throw new ForbiddenException("Only organizer can view reports");
@@ -77,10 +88,26 @@ public class RuleViolationService {
 			.toList();
 	}
 
-	private Hackathon loadHackathon(Long hackathonId) {
+	private Hackathon loadHackathon(@NonNull Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private ReportViolationRequest requiredRequest(ReportViolationRequest request) {
+		if (request == null) {
+			throw new BadRequestException("Rule violation report is required");
+		}
+		return request;
 	}
 
 	private User currentUser() {

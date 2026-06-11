@@ -18,6 +18,7 @@ import com.hackhub.infrastructure.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,11 +39,14 @@ public class SubmissionService {
 
 	@Transactional
 	public SubmissionResponse upsertMyTeamSubmission(
-		Long hackathonId,
-		UpsertSubmissionRequest request
+		@NonNull Long hackathonId,
+		@NonNull UpsertSubmissionRequest request
 	) {
+		UpsertSubmissionRequest requiredRequest = requiredRequest(request);
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 		Team team = teamRepository
 			.findByMembersContaining(currentUser)
 			.orElseThrow(() -> new NotFoundException("Current user is not in any team"));
@@ -64,10 +68,12 @@ public class SubmissionService {
 
 		submission.setHackathon(hackathon);
 		submission.setTeam(team);
-		submission.setProjectName(request.projectName().trim());
-		submission.setRepositoryUrl(request.repositoryUrl().trim());
-		submission.setDemoUrl(request.demoUrl() == null ? null : request.demoUrl().trim());
-		submission.setDescription(request.description().trim());
+		submission.setProjectName(requiredRequest.projectName().trim());
+		submission.setRepositoryUrl(requiredRequest.repositoryUrl().trim());
+		submission.setDemoUrl(
+			requiredRequest.demoUrl() == null ? null : requiredRequest.demoUrl().trim()
+		);
+		submission.setDescription(requiredRequest.description().trim());
 		if (isNew) {
 			submission.setSubmittedAt(LocalDateTime.now());
 		}
@@ -77,9 +83,11 @@ public class SubmissionService {
 	}
 
 	@Transactional(readOnly = true)
-	public SubmissionResponse getMyTeamSubmission(Long hackathonId) {
+	public SubmissionResponse getMyTeamSubmission(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 		Team team = teamRepository
 			.findByMembersContaining(currentUser)
 			.orElseThrow(() -> new NotFoundException("Current user is not in any team"));
@@ -95,9 +103,11 @@ public class SubmissionService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<SubmissionResponse> listHackathonSubmissions(Long hackathonId) {
+	public List<SubmissionResponse> listHackathonSubmissions(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
-		Hackathon hackathon = loadHackathon(hackathonId);
+		Hackathon hackathon = loadHackathon(
+			requiredId(hackathonId, "Hackathon ID is required")
+		);
 
 		if (!staffAccessService.canAccessSubmissions(currentUser, hackathon)) {
 			throw new ForbiddenException("Only assigned staff can view submissions");
@@ -120,9 +130,25 @@ public class SubmissionService {
 			.orElseThrow(() -> new NotFoundException("Authenticated user not found"));
 	}
 
-	private Hackathon loadHackathon(Long hackathonId) {
+	private Hackathon loadHackathon(@NonNull Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
+	}
+
+	@NonNull
+	private Long requiredId(Long id, String message) {
+		if (id == null) {
+			throw new BadRequestException(message);
+		}
+		return id;
+	}
+
+	@NonNull
+	private UpsertSubmissionRequest requiredRequest(UpsertSubmissionRequest request) {
+		if (request == null) {
+			throw new BadRequestException("Submission request is required");
+		}
+		return request;
 	}
 }

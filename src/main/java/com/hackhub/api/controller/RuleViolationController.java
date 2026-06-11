@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,8 +39,8 @@ public class RuleViolationController {
 	)
 	public RuleViolationReportResponse createReport(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId,
-		@Valid @RequestBody ReportViolationRequest request
+		@PathVariable("hackathonId") @NonNull Long hackathonId,
+		@Valid @RequestBody @NonNull ReportViolationRequest request
 	) {
 		return ruleViolationService.createReport(hackathonId, request);
 	}
@@ -51,7 +52,7 @@ public class RuleViolationController {
 	)
 	public List<RuleViolationReportResponse> listReports(
 		@Parameter(description = "Hackathon ID", example = "1")
-		@PathVariable("hackathonId") Long hackathonId
+		@PathVariable("hackathonId") @NonNull Long hackathonId
 	) {
 		return ruleViolationService.listReports(hackathonId);
 	}
