@@ -26,7 +26,7 @@ It is based on:
 Run the app in dev mode:
 
 ```bash
-./gradlew bootRun --args='--spring.profiles.active=dev'
+./gradlew bootRun
 ```
 
 Base URL:

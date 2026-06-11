@@ -93,6 +93,8 @@ spring:
   datasource:
     # Dedicated development database.
     url: jdbc:h2:mem:hackhub-dev
+    username: admin
+    password:
 
   h2:
     console:

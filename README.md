@@ -9,7 +9,7 @@ Basic Spring Boot backend for the HackHub hackathon platform.
 
 ## Run in Dev Mode
 
-`dev` mode activates the Spring profile `dev` (`spring.profiles.active=dev`).
+`bootRun` activates the Spring profile `dev` automatically.
 
 In this project, dev mode enables:
 - H2 console
@@ -19,7 +19,7 @@ In this project, dev mode enables:
 Start the app in dev mode with:
 
 ```bash
-./gradlew bootRun --args='--spring.profiles.active=dev'
+./gradlew bootRun
 ```
 
 ## Dev URLs
