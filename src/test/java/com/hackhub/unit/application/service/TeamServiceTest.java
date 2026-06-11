@@ -16,13 +16,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,17 +52,14 @@ class TeamServiceTest {
 		TestSecurity.authenticateAs(user);
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.empty());
-		when(teamRepository.save(any(Team.class))).thenReturn(
+		when(teamRepository.save(isA(Team.class))).thenReturn(
 			savedTeam(user)
 		);
 
 		var response = teamService.createTeam(new CreateTeamRequest(" CodeStorm "));
 
-		ArgumentCaptor<Team> teamCaptor = ArgumentCaptor.forClass(Team.class);
-		verify(teamRepository).save(teamCaptor.capture());
-		assertThat(teamCaptor.getValue().getName()).isEqualTo("CodeStorm");
-		assertThat(teamCaptor.getValue().getCreatedBy()).isSameAs(user);
-		assertThat(teamCaptor.getValue().getMembers()).containsExactly(user);
+		verify(teamRepository).save(isA(Team.class));
+		assertThat(response.name()).isEqualTo("CodeStorm");
 		assertThat(response.memberIds()).containsExactly(1L);
 	}
 

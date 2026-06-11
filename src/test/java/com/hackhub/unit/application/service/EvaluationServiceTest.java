@@ -28,7 +28,7 @@ import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +98,7 @@ class EvaluationServiceTest {
 		when(evaluationRepository.findBySubmission(submission)).thenReturn(Optional.empty());
 		Evaluation savedEvaluation = TestDataFactory.evaluation(40L, submission, judge);
 		savedEvaluation.setScore(9);
-		when(evaluationRepository.save(any(Evaluation.class))).thenReturn(savedEvaluation);
+		when(evaluationRepository.save(isA(Evaluation.class))).thenReturn(savedEvaluation);
 
 		var response = evaluationService.evaluateSubmission(30L, validEvaluationRequest());
 

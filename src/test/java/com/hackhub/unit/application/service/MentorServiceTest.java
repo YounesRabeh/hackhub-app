@@ -36,7 +36,7 @@ import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,8 +132,8 @@ class MentorServiceTest {
 		TestSecurity.authenticateAs(mentor);
 		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
 		when(supportRequestRepository.findById(50L)).thenReturn(Optional.of(supportRequest));
-		when(calendarClient.bookCall(any())).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
-		when(callProposalRepository.save(any(MentorCallProposal.class))).thenReturn(
+		when(calendarClient.bookCall(isA(com.hackhub.infrastructure.external.calendar.CalendarBookingRequest.class))).thenReturn(new CalendarBookingResponse("external-123", "https://calendar.example/booking"));
+		when(callProposalRepository.save(isA(MentorCallProposal.class))).thenReturn(
 			savedCallProposal(supportRequest, mentor)
 		);
 

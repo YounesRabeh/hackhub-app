@@ -32,7 +32,7 @@ import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -125,7 +125,7 @@ class SubmissionServiceTest {
 		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.of(team));
 		when(registrationRepository.existsByHackathonAndTeam(hackathon, team)).thenReturn(true);
 		when(submissionRepository.findByHackathonAndTeam(hackathon, team)).thenReturn(Optional.empty());
-		when(submissionRepository.save(any(Submission.class))).thenReturn(
+		when(submissionRepository.save(isA(Submission.class))).thenReturn(
 			TestDataFactory.submission(30L, hackathon, team)
 		);
 
@@ -133,7 +133,7 @@ class SubmissionServiceTest {
 
 		assertThat(response.id()).isEqualTo(30L);
 		assertThat(response.teamId()).isEqualTo(20L);
-		verify(submissionRepository).save(any(Submission.class));
+		verify(submissionRepository).save(isA(Submission.class));
 	}
 
 	@Test

@@ -28,7 +28,7 @@ import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -140,7 +140,7 @@ class HackathonServiceTest {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		TestSecurity.authenticateAs(organizer);
 		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
-		when(hackathonRepository.save(any(Hackathon.class))).thenReturn(
+		when(hackathonRepository.save(isA(Hackathon.class))).thenReturn(
 			TestDataFactory.hackathon(10L, organizer, HackathonStatus.REGISTRATION_OPEN)
 		);
 

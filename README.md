@@ -29,7 +29,7 @@ Start the app in dev mode with:
 - H2 console: `http://localhost:8080/h2-console`
 
 H2 (dev profile) database URL: `jdbc:h2:mem:hackhub-dev`  
-Default username: `sa`  
+Default username: `admin`  
 Password: *(empty)*
 
 ## Run Tests

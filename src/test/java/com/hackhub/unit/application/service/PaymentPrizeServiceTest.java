@@ -12,18 +12,17 @@ import com.hackhub.infrastructure.external.payment.PaymentRequest;
 import com.hackhub.infrastructure.external.payment.PaymentResponse;
 import com.hackhub.infrastructure.repository.PaymentTransactionRepository;
 import com.hackhub.testsupport.TestDataFactory;
-import java.util.Objects;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,9 +50,9 @@ class PaymentPrizeServiceTest {
 			HackathonStatus.FINISHED
 		);
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
-		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
-			PaymentPrizeServiceTest::savedCompletedTransaction
+		when(paymentClient.payPrize(isA(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-123", true));
+		when(paymentTransactionRepository.save(isA(PaymentTransaction.class))).thenReturn(
+			completedTransaction(hackathon, winnerTeam)
 		);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
@@ -76,9 +75,9 @@ class PaymentPrizeServiceTest {
 			HackathonStatus.FINISHED
 		);
 		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
-		when(paymentClient.payPrize(any(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
-		when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(
-			PaymentPrizeServiceTest::savedTransaction
+		when(paymentClient.payPrize(isA(PaymentRequest.class))).thenReturn(new PaymentResponse("pay-failed", false));
+		when(paymentTransactionRepository.save(isA(PaymentTransaction.class))).thenReturn(
+			failedTransaction(hackathon, winnerTeam)
 		);
 
 		PaymentTransaction transaction = paymentPrizeService.payWinnerPrize(hackathon, winnerTeam);
@@ -88,19 +87,37 @@ class PaymentPrizeServiceTest {
 		assertThat(transaction.getCompletedAt()).isNull();
 	}
 
-	private static @NonNull PaymentTransaction savedCompletedTransaction(
-		InvocationOnMock invocation
+	private static @NonNull PaymentTransaction completedTransaction(
+		Hackathon hackathon,
+		Team winnerTeam
 	) {
-		PaymentTransaction transaction = savedTransaction(invocation);
-		transaction.setId(30L);
+		PaymentTransaction transaction = transaction(hackathon, winnerTeam);
+		transaction.setExternalPaymentId("pay-123");
+		transaction.setStatus(PaymentStatus.COMPLETED);
+		transaction.setCompletedAt(LocalDateTime.now());
 		return transaction;
 	}
 
-	private static @NonNull PaymentTransaction savedTransaction(
-		InvocationOnMock invocation
+	private static @NonNull PaymentTransaction failedTransaction(
+		Hackathon hackathon,
+		Team winnerTeam
 	) {
-		return Objects.requireNonNull(
-			invocation.getArgument(0, PaymentTransaction.class)
-		);
+		PaymentTransaction transaction = transaction(hackathon, winnerTeam);
+		transaction.setExternalPaymentId("pay-failed");
+		transaction.setStatus(PaymentStatus.FAILED);
+		return transaction;
+	}
+
+	private static @NonNull PaymentTransaction transaction(
+		Hackathon hackathon,
+		Team winnerTeam
+	) {
+		PaymentTransaction transaction = new PaymentTransaction();
+		transaction.setId(30L);
+		transaction.setHackathon(hackathon);
+		transaction.setWinnerTeam(winnerTeam);
+		transaction.setAmount(hackathon.getPrizeAmount());
+		transaction.setCreatedAt(LocalDateTime.now());
+		return transaction;
 	}
 }

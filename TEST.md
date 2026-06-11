@@ -1,5 +1,17 @@
 # HackHub Manual Test Flow
 
+Run the full automated test suite:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew clean test --no-daemon
+```
+
+Or simply:
+
+```bash
+./gradlew test
+```
+
 This file documents the dev-profile request order, request payloads, and expected values for the main HackHub backend API flow.
 
 It is based on:
