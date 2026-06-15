@@ -163,6 +163,48 @@ class EvaluationServiceTest {
 	}
 
 	/**
+	 * Verifies ordinary users cannot view staff-only evaluation lists.
+	 */
+	@Test
+	void listHackathonEvaluationsRejectsParticipantUser() {
+		User user = TestDataFactory.user(1L, Role.USER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.EVALUATION);
+		TestSecurity.authenticateAs(user);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.canAccessSubmissions(user, hackathon)).thenReturn(false);
+
+		assertThatThrownBy(() -> evaluationService.listHackathonEvaluations(10L))
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage("Only assigned staff can view evaluations");
+	}
+
+	/**
+	 * Verifies assigned judges can view evaluation lists for their hackathon.
+	 */
+	@Test
+	void listHackathonEvaluationsAllowsAssignedJudge() {
+		User judge = TestDataFactory.user(1L, Role.JUDGE);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.EVALUATION);
+		Submission submission = TestDataFactory.submission(
+			30L,
+			hackathon,
+			TestDataFactory.team(20L, TestDataFactory.user(3L, Role.USER), TestDataFactory.user(3L, Role.USER))
+		);
+		Evaluation evaluation = TestDataFactory.evaluation(40L, submission, judge);
+		TestSecurity.authenticateAs(judge);
+		when(userRepository.findByEmail(judge.getEmail())).thenReturn(Optional.of(judge));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.canAccessSubmissions(judge, hackathon)).thenReturn(true);
+		when(evaluationRepository.findAllBySubmission_Hackathon(hackathon)).thenReturn(java.util.List.of(evaluation));
+
+		var response = evaluationService.listHackathonEvaluations(10L);
+
+		assertThat(response).hasSize(1);
+		assertThat(response.get(0).id()).isEqualTo(40L);
+	}
+
+	/**
 	 * Builds the standard valid evaluation request used by positive scenarios.
 	 */
 	private @NonNull CreateEvaluationRequest validEvaluationRequest() {

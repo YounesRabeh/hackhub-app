@@ -33,16 +33,16 @@
 
 - [x] `USER` cannot create hackathons.
 - [x] `ORGANIZER` can create and manage own hackathons.
-- [ ] Non-organizer cannot add mentors or judges.
+- [x] Non-organizer cannot add mentors or judges.
 - [x] Organizer cannot assign a user as mentor unless user role is `MENTOR`.
 - [x] Organizer cannot assign a user as judge unless user role is `JUDGE`.
 - [x] Mentor can view support requests for assigned hackathons.
-- [ ] Mentor is denied support requests for unassigned hackathons.
+- [x] Mentor is denied support requests for unassigned hackathons.
 - [x] Judge can evaluate submissions only for assigned hackathons.
-- [ ] Judge can view submissions only for assigned hackathons.
-- [ ] User cannot view staff-only submission/evaluation/report endpoints.
+- [x] Judge can view submissions only for assigned hackathons.
+- [x] User cannot view staff-only submission/evaluation/report endpoints.
 - [x] Organizer can view registrations, reports, submissions, and evaluations for own hackathon.
-- [ ] Cross-hackathon staff access is denied.
+- [x] Cross-hackathon staff access is denied.
 
 ## Lifecycle
 

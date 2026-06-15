@@ -152,6 +152,23 @@ class HackathonServiceTest {
 	}
 
 	/**
+	 * Verifies users other than the hackathon organizer cannot manage mentors.
+	 */
+	@Test
+	void addMentorRejectsNonOrganizer() {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		User otherOrganizer = TestDataFactory.user(2L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.REGISTRATION_OPEN);
+		TestSecurity.authenticateAs(otherOrganizer);
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(userRepository.findByEmail(otherOrganizer.getEmail())).thenReturn(Optional.of(otherOrganizer));
+
+		assertThatThrownBy(() -> hackathonService.addMentor(10L, 3L))
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage("Only the organizer can manage mentors");
+	}
+
+	/**
 	 * Verifies judge assignment requires the assigned user to have role
 	 * {@code JUDGE}.
 	 */
@@ -168,6 +185,23 @@ class HackathonServiceTest {
 		assertThatThrownBy(() -> hackathonService.addJudge(10L, 2L))
 			.isInstanceOf(BadRequestException.class)
 			.hasMessage("Assigned user must have role JUDGE");
+	}
+
+	/**
+	 * Verifies users other than the hackathon organizer cannot manage judges.
+	 */
+	@Test
+	void addJudgeRejectsNonOrganizer() {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		User otherOrganizer = TestDataFactory.user(2L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.REGISTRATION_OPEN);
+		TestSecurity.authenticateAs(otherOrganizer);
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(userRepository.findByEmail(otherOrganizer.getEmail())).thenReturn(Optional.of(otherOrganizer));
+
+		assertThatThrownBy(() -> hackathonService.addJudge(10L, 3L))
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage("Only the organizer can manage judges");
 	}
 
 	/**

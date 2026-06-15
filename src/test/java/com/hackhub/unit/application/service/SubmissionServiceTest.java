@@ -150,6 +150,38 @@ class SubmissionServiceTest {
 			.hasMessage("Only assigned staff can view submissions");
 	}
 
+	@Test
+	void staffListingRejectsParticipantUser() {
+		User user = TestDataFactory.user(1L, Role.USER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.EVALUATION);
+		TestSecurity.authenticateAs(user);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.canAccessSubmissions(user, hackathon)).thenReturn(false);
+
+		assertThatThrownBy(() -> submissionService.listHackathonSubmissions(10L))
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage("Only assigned staff can view submissions");
+	}
+
+	@Test
+	void staffListingAllowsAssignedJudge() {
+		User judge = TestDataFactory.user(1L, Role.JUDGE);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.EVALUATION);
+		Team team = TestDataFactory.team(20L, TestDataFactory.user(3L, Role.USER), TestDataFactory.user(3L, Role.USER));
+		Submission submission = TestDataFactory.submission(30L, hackathon, team);
+		TestSecurity.authenticateAs(judge);
+		when(userRepository.findByEmail(judge.getEmail())).thenReturn(Optional.of(judge));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.canAccessSubmissions(judge, hackathon)).thenReturn(true);
+		when(submissionRepository.findAllByHackathon(hackathon)).thenReturn(java.util.List.of(submission));
+
+		var response = submissionService.listHackathonSubmissions(10L);
+
+		assertThat(response).hasSize(1);
+		assertThat(response.get(0).id()).isEqualTo(30L);
+	}
+
 	private @NonNull UpsertSubmissionRequest validSubmissionRequest() {
 		return new UpsertSubmissionRequest(
 			"AI Study Buddy",

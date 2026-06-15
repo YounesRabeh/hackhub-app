@@ -17,7 +17,7 @@ plugins {
 }
 
 group = 'com.hackhub'
-version = '0.9.2'
+version = '0.9.3'
 description = 'HackHub - Hackathon Management Platform'
 
 java {

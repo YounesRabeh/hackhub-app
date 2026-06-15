@@ -177,6 +177,50 @@ class MentorServiceTest {
 	}
 
 	/**
+	 * Verifies support request listing is denied to mentors who are not assigned
+	 * to the hackathon.
+	 */
+	@Test
+	void listSupportRequestsRejectsUnassignedMentor() {
+		User mentor = TestDataFactory.user(1L, Role.MENTOR);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.IN_PROGRESS);
+		TestSecurity.authenticateAs(mentor);
+		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.isMentorOf(mentor, hackathon)).thenReturn(false);
+
+		assertThatThrownBy(() -> mentorService.listSupportRequests(10L))
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage("Only assigned mentors can view support requests");
+	}
+
+	/**
+	 * Verifies assigned mentors can list support requests for their hackathon.
+	 */
+	@Test
+	void listSupportRequestsAllowsAssignedMentor() {
+		User mentor = TestDataFactory.user(1L, Role.MENTOR);
+		User requester = TestDataFactory.user(2L, Role.USER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(3L, Role.ORGANIZER), HackathonStatus.IN_PROGRESS);
+		SupportRequest supportRequest = TestDataFactory.supportRequest(
+			50L,
+			hackathon,
+			TestDataFactory.team(20L, requester, requester),
+			requester
+		);
+		TestSecurity.authenticateAs(mentor);
+		when(userRepository.findByEmail(mentor.getEmail())).thenReturn(Optional.of(mentor));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(staffAccessService.isMentorOf(mentor, hackathon)).thenReturn(true);
+		when(supportRequestRepository.findAllByHackathon(hackathon)).thenReturn(java.util.List.of(supportRequest));
+
+		var response = mentorService.listSupportRequests(10L);
+
+		assertThat(response).hasSize(1);
+		assertThat(response.get(0).id()).isEqualTo(50L);
+	}
+
+	/**
 	 * Builds a valid support request payload.
 	 */
 	private @NonNull CreateSupportRequestRequest validSupportRequest() {
