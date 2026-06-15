@@ -76,17 +76,80 @@ Class:
 src/test/java/com/hackhub/integration/coverage/EndpointCoverageIntegrationTest.java
 ```
 
-Run:
+Purpose:
+
+`EndpointCoverageIntegrationTest` is an integration-level coverage guard for API routes.
+It does not replace focused behavior tests. Its job is to prove that the automated HTTP suite still reaches most controller endpoints after routes are added, removed, or renamed.
+
+Run only endpoint coverage:
 
 ```bash
 ./gradlew cov
 ```
 
-Coverage:
+Equivalent direct Gradle test run:
 
-- Exercises the main API endpoints through representative authenticated HTTP flows.
-- Fails when endpoint coverage drops below the configured threshold.
-- Default threshold is `80%`; override with `-Dendpoint.coverage.threshold=<percent>`.
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.coverage.EndpointCoverageIntegrationTest
+```
+
+Run with a custom threshold:
+
+```bash
+./gradlew cov -Dendpoint.coverage.threshold=90
+```
+
+How it works:
+
+- `EndpointCoverageTestConfiguration` registers `EndpointCoverageInterceptor` for test requests.
+- The interceptor runs before controller handlers and only records handlers in `com.hackhub.api.controller`.
+- For each matched controller request, the interceptor records the HTTP method and Spring's best matching route pattern, for example `POST /api/auth/login` or `GET /api/hackathons/{hackathonId}`.
+- Hits are stored in `EndpointCoverageRegistry`.
+- The final ordered test discovers all controller mappings from `RequestMappingHandlerMapping`.
+- It compares discovered endpoints with recorded hits and calculates `hit / total * 100`.
+- The test fails when the percentage is below `endpoint.coverage.threshold`.
+
+Execution order:
+
+| Order | Test method | What it covers |
+| --- | --- | --- |
+| `1` | `coverAuthTeamAndInvitationEndpoints` | Registration, login, current user lookup, team creation, team lookup, invitation creation, invitation decline, and invitation accept |
+| `2` | `coverHackathonAndEvaluationEndpoints` | Hackathon listing/detail/create, mentor and judge assignment, team registration, registration listing, status transitions, submissions, support requests, call proposal authorization, rule violations, evaluations, and winner declaration |
+| `99` | `shouldPrintEndpointCoverageAndEnforceThreshold` | Discovers all controller mappings, logs missing endpoints, calculates coverage, and enforces the threshold |
+
+Currently exercised route groups:
+
+- Auth: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- Teams: `POST /api/teams`, `GET /api/teams/me`
+- Invitations: `POST /api/teams/{teamId}/invitations`, `POST /api/invitations/{invitationId}/accept`, `POST /api/invitations/{invitationId}/decline`
+- Hackathons: public list/detail, organizer create, mentor assignment, judge assignment, status update, registrations, submissions, and winner declaration
+- Mentor support: create/list support requests and attempt a call proposal request
+- Rule violations: create/list rule violation reports
+- Evaluations: create an evaluation and list hackathon evaluations
+
+Important behavior:
+
+- The default threshold is `80%`.
+- The Gradle `cov` task always runs fresh because `outputs.upToDateWhen { false }` is configured.
+- The task prints a summary like `Endpoint coverage: X/Y (Z%) - threshold N%`.
+- Missing endpoints are logged from the final test method when coverage is incomplete.
+- Only application API controllers count toward the denominator. Framework routes and docs routes are ignored because they are outside `com.hackhub.api.controller`.
+- A request can count as covered even when the expected result is not `2xx`; for example, the call proposal request currently expects `403 Forbidden` but still proves the route is reached.
+
+When adding or changing endpoints:
+
+- Add at least one representative MockMvc request to one of the ordered coverage flows.
+- Keep setup realistic: create users with the role needed by the endpoint and move hackathons into the required lifecycle state.
+- Prefer checking the expected HTTP status so coverage requests still catch major authorization or validation regressions.
+- If an endpoint is intentionally not covered, keep the threshold realistic and document why in the pull request or test notes.
+- After changing controller mappings, run `./gradlew cov` and inspect the printed missing endpoint list if the threshold fails.
+
+Related support classes:
+
+- `EndpointCoverageInterceptor`: records matched controller route patterns during MockMvc requests.
+- `EndpointCoverageRegistry`: stores hit endpoints in a thread-safe set and returns a sorted snapshot.
+- `EndpointCoverageTestConfiguration`: attaches the interceptor to the test Spring MVC configuration.
+- `IntegrationTestSupport`: provides MockMvc helpers, token extraction, test users, and request payload builders used by the coverage flows.
 
 ### Main workflow integration test
 

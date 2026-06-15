@@ -26,6 +26,20 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration-level endpoint coverage guard for the public REST API.
+ *
+ * <p>This test class does not try to prove every business rule. Instead, it
+ * drives representative HTTP requests through MockMvc so the
+ * {@link com.hackhub.testsupport.coverage.EndpointCoverageInterceptor} can
+ * record which controller route patterns were exercised. The final ordered
+ * test compares those recorded route hits against every mapping discovered
+ * from controllers in {@code com.hackhub.api.controller}.</p>
+ *
+ * <p>The class is ordered intentionally: the first tests execute endpoint
+ * flows, and the final test calculates and enforces the configured coverage
+ * threshold.</p>
+ */
 @TestMethodOrder(OrderAnnotation.class)
 class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 
@@ -39,6 +53,11 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 	@Autowired
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
+	/**
+	 * Covers authentication, team creation, invitation creation, and invitation
+	 * response endpoints using three users so both accept and decline flows are
+	 * represented.
+	 */
 	@Test
 	@Order(1)
 	void coverAuthTeamAndInvitationEndpoints() throws Exception {
@@ -116,6 +135,14 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 		).andExpect(status().isOk());
 	}
 
+	/**
+	 * Covers the main hackathon lifecycle endpoints with role-specific users.
+	 *
+	 * <p>The flow creates the roles needed by secured endpoints, moves a
+	 * hackathon through registration, in-progress, and evaluation states, and
+	 * exercises submission, support, rule violation, evaluation, and winner
+	 * declaration routes.</p>
+	 */
 	@Test
 	@Order(2)
 	void coverHackathonAndEvaluationEndpoints() throws Exception {
@@ -255,6 +282,11 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 		).andExpect(status().isOk());
 	}
 
+	/**
+	 * Discovers all application controller mappings, compares them with the
+	 * interceptor's hit registry, logs the coverage summary, and fails the test
+	 * if the percentage is below {@code endpoint.coverage.threshold}.
+	 */
 	@Test
 	@Order(99)
 	void shouldPrintEndpointCoverageAndEnforceThreshold() {
@@ -287,6 +319,13 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 		);
 	}
 
+	/**
+	 * Builds the complete endpoint set from Spring MVC mappings.
+	 *
+	 * <p>Only application controllers are counted. Framework endpoints such as
+	 * error handling, Actuator, or Swagger are ignored because they live outside
+	 * {@code com.hackhub.api.controller}.</p>
+	 */
 	private Set<String> discoverAllControllerEndpoints() {
 		Set<String> endpoints = new TreeSet<>();
 
@@ -317,6 +356,12 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 		return endpoints;
 	}
 
+	/**
+	 * Reads the required endpoint coverage percentage.
+	 *
+	 * <p>The Gradle {@code cov} task forwards this system property and defaults
+	 * to {@value #DEFAULT_THRESHOLD_PERCENT} when it is not supplied.</p>
+	 */
 	private double endpointCoverageThresholdPercent() {
 		String value = System.getProperty(
 			"endpoint.coverage.threshold",
@@ -325,6 +370,10 @@ class EndpointCoverageIntegrationTest extends IntegrationTestSupport {
 		return Double.parseDouble(value);
 	}
 
+	/**
+	 * Creates a future-dated hackathon request payload that satisfies controller
+	 * validation and supports all later lifecycle transitions in this test.
+	 */
 	private Map<String, Object> validHackathonPayload() {
 		LocalDateTime now = LocalDateTime.now().plusDays(3);
 		return Map.of(
