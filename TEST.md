@@ -12,6 +12,95 @@ Or simply:
 ./gradlew test
 ```
 
+## Automated Test Map
+
+The automated suite is split between focused integration tests and unit tests.
+Use targeted runs while developing, then run the full suite before pushing.
+
+### Context integration tests
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/context/ApplicationContextIntegrationTest.java
+```
+
+Run only this class:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.context.ApplicationContextIntegrationTest
+```
+
+Coverage:
+
+- Spring Boot application context starts and remains active.
+- Core beans are registered: `AuthService`, `UserRepository`, `TeamRepository`, `HackathonRepository`, and `ObjectMapper`.
+- Security beans are registered: `SecurityFilterChain`, `AuthenticationManager`, `PasswordEncoder`, `JwtService`, and `JwtAuthenticationFilter`.
+- Main API controllers are registered: `AuthController`, `TeamController`, and `HackathonController`.
+- Authentication routes are mapped:
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `GET /api/auth/me`
+
+### Auth HTTP integration tests
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/auth/AuthHttpIntegrationTest.java
+```
+
+Run only this class:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.auth.AuthHttpIntegrationTest
+```
+
+Coverage:
+
+- Register and login return JWT tokens.
+- Registered emails are normalized to lowercase.
+- `/api/auth/me` rejects missing tokens.
+- `/api/auth/me` returns the authenticated user's `id`, `email`, and `role`.
+- Duplicate registration is rejected even when email case differs.
+- Register and login reject emails with surrounding whitespace.
+- Login rejects wrong passwords and unknown emails.
+- Register and login validation failures return `400 Bad Request` with validation details.
+- Login accepts the same email with different casing.
+
+### Endpoint coverage integration test
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/coverage/EndpointCoverageIntegrationTest.java
+```
+
+Run:
+
+```bash
+./gradlew cov
+```
+
+Coverage:
+
+- Exercises the main API endpoints through representative authenticated HTTP flows.
+- Fails when endpoint coverage drops below the configured threshold.
+- Default threshold is `80%`; override with `-Dendpoint.coverage.threshold=<percent>`.
+
+### Main workflow integration test
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/workflow/HackathonHttpFlowIntegrationTest.java
+```
+
+Coverage:
+
+- Runs the core hackathon workflow through HTTP.
+- Covers participant teams, hackathon registration, submissions, judging, support requests, rule reports, winner declaration, and fake external service side effects.
+
 This file documents the dev-profile request order, request payloads, and expected values for the main HackHub backend API flow.
 
 It is based on:
