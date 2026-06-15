@@ -73,13 +73,12 @@ class ApplicationContextIntegrationTest {
 			.getHandlerMethods()
 			.keySet()
 			.stream()
-			.flatMap(mapping -> mapping.getPathPatternsCondition()
-				.getPatterns()
+			.flatMap(mapping -> mapping.getPatternValues()
 				.stream()
 				.flatMap(pattern -> mapping.getMethodsCondition()
 					.getMethods()
 					.stream()
-					.map(method -> method + " " + pattern.getPatternString())))
+					.map(method -> method + " " + pattern)))
 			.collect(Collectors.toSet());
 
 		assertThat(mappings).contains(
