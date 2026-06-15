@@ -46,7 +46,9 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 
 		getWithBearer("/api/auth/me", extractToken(registration))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.email").value(email));
+			.andExpect(jsonPath("$.id").isNumber())
+			.andExpect(jsonPath("$.email").value(email))
+			.andExpect(jsonPath("$.role").value("USER"));
 	}
 
 	@Test
@@ -62,6 +64,16 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 	}
 
 	@Test
+	void registerRejectsEmailWithSurroundingWhitespace() throws Exception {
+		String emailInput = "  Trimmed+" + System.nanoTime() + "@Example.COM  ";
+
+		postJson("/api/auth/register", registerPayload(emailInput, PASSWORD))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Validation failed"))
+			.andExpect(jsonPath("$.details", validationDetailContaining("email")));
+	}
+
+	@Test
 	void loginRejectsWrongPassword() throws Exception {
 		String email = uniqueEmail();
 		postJson("/api/auth/register", registerPayload(email, PASSWORD))
@@ -73,8 +85,24 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 	}
 
 	@Test
+	void loginRejectsUnknownEmail() throws Exception {
+		postJson("/api/auth/login", loginPayload(uniqueEmail(), PASSWORD))
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("$.message").value("Authentication failed"));
+	}
+
+	@Test
 	void registerRejectsInvalidPayload() throws Exception {
 		postJson("/api/auth/register", registerPayload("not-an-email", "short"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Validation failed"))
+			.andExpect(jsonPath("$.details", validationDetailContaining("email")))
+			.andExpect(jsonPath("$.details", validationDetailContaining("password")));
+	}
+
+	@Test
+	void loginRejectsInvalidPayload() throws Exception {
+		postJson("/api/auth/login", loginPayload("not-an-email", ""))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Validation failed"))
 			.andExpect(jsonPath("$.details", validationDetailContaining("email")))
@@ -91,6 +119,18 @@ class AuthHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.user.email").value(email.toLowerCase(Locale.ROOT)))
 			.andExpect(jsonPath("$.token").isString());
+	}
+
+	@Test
+	void loginRejectsEmailWithSurroundingWhitespace() throws Exception {
+		String email = uniqueEmail();
+		postJson("/api/auth/register", registerPayload(email, PASSWORD))
+			.andExpect(status().isCreated());
+
+		postJson("/api/auth/login", loginPayload("  " + email.toUpperCase(Locale.ROOT) + "  ", PASSWORD))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Validation failed"))
+			.andExpect(jsonPath("$.details", validationDetailContaining("email")));
 	}
 
 	@SuppressWarnings("null")
