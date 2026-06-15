@@ -31,6 +31,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link EvaluationService}.
+ *
+ * <p>The service is tested with mocked repositories and collaborators so each
+ * case can focus on evaluation-specific behavior: assigned-judge authorization,
+ * creating the first evaluation for a submission, and updating the existing
+ * evaluation when one is already present.</p>
+ *
+ * <p>Authentication is supplied through {@link TestSecurity}, which populates
+ * Spring Security's context with the fixture judge user for each scenario.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class EvaluationServiceTest {
 
@@ -54,6 +65,10 @@ class EvaluationServiceTest {
 
 	private EvaluationService evaluationService;
 
+	/**
+	 * Creates the service under test with mocked persistence and authorization
+	 * collaborators.
+	 */
 	@BeforeEach
 	void setUp() {
 		evaluationService = new EvaluationService(
@@ -66,11 +81,19 @@ class EvaluationServiceTest {
 		);
 	}
 
+	/**
+	 * Clears the static Spring Security context after each test so authenticated
+	 * users cannot leak between scenarios.
+	 */
 	@AfterEach
 	void tearDown() {
 		TestSecurity.clear();
 	}
 
+	/**
+	 * Verifies that a judge cannot evaluate a submission unless they are
+	 * assigned to the submission's hackathon.
+	 */
 	@Test
 	void evaluateSubmissionRequiresAssignedJudge() {
 		User judge = TestDataFactory.user(1L, Role.JUDGE);
@@ -86,6 +109,10 @@ class EvaluationServiceTest {
 			.hasMessage("Only assigned judges can evaluate submissions");
 	}
 
+	/**
+	 * Verifies that the service creates and saves a new evaluation when the
+	 * submission has not been evaluated yet.
+	 */
 	@Test
 	void evaluateSubmissionCreatesEvaluationWhenMissing() {
 		User judge = TestDataFactory.user(1L, Role.JUDGE);
@@ -108,6 +135,10 @@ class EvaluationServiceTest {
 		assertThat(response.score()).isEqualTo(9);
 	}
 
+	/**
+	 * Verifies that the service updates the existing evaluation instead of
+	 * creating a duplicate evaluation for the same submission.
+	 */
 	@Test
 	void evaluateSubmissionUpdatesExistingEvaluation() {
 		User judge = TestDataFactory.user(1L, Role.JUDGE);
@@ -131,10 +162,16 @@ class EvaluationServiceTest {
 		assertThat(response.comment()).isEqualTo("Updated score");
 	}
 
+	/**
+	 * Builds the standard valid evaluation request used by positive scenarios.
+	 */
 	private @NonNull CreateEvaluationRequest validEvaluationRequest() {
 		return new CreateEvaluationRequest(9, "Excellent project");
 	}
 
+	/**
+	 * Mockito matcher for repository saves that accept any {@link Evaluation}.
+	 */
 	@SuppressWarnings("all")
 	private static @NonNull Evaluation anyEvaluation() {
 		return isA(Evaluation.class);
