@@ -36,6 +36,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link OrganizerService}.
+ *
+ * <p>The scenarios focus on declaring a hackathon winner: all submissions must
+ * be evaluated first, and a valid declaration should set the winner, finish the
+ * hackathon, persist the update, and trigger prize payment.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class OrganizerServiceTest {
 
@@ -65,6 +72,10 @@ class OrganizerServiceTest {
 
 	private OrganizerService organizerService;
 
+	/**
+	 * Creates the service under test with mocked repositories, authorization,
+	 * and payment collaborators.
+	 */
 	@BeforeEach
 	void setUp() {
 		organizerService = new OrganizerService(
@@ -80,11 +91,18 @@ class OrganizerServiceTest {
 		);
 	}
 
+	/**
+	 * Clears the Spring Security context after each scenario.
+	 */
 	@AfterEach
 	void tearDown() {
 		TestSecurity.clear();
 	}
 
+	/**
+	 * Verifies a winner cannot be declared while any submission lacks an
+	 * evaluation.
+	 */
 	@Test
 	void declareWinnerRequiresAllSubmissionsEvaluated() {
 		TestScenario scenario = prepareScenario();
@@ -95,6 +113,10 @@ class OrganizerServiceTest {
 			.hasMessage("All submissions must be evaluated");
 	}
 
+	/**
+	 * Verifies a successful winner declaration mutates the hackathon lifecycle
+	 * and delegates prize payment.
+	 */
 	@Test
 	void declareWinnerSetsWinnerFinishesHackathonAndPaysPrize() {
 		TestScenario scenario = prepareScenario();
@@ -110,6 +132,10 @@ class OrganizerServiceTest {
 		verify(paymentPrizeService).payWinnerPrize(scenario.hackathon(), scenario.winnerTeam());
 	}
 
+	/**
+	 * Prepares a complete organizer-owned hackathon scenario with a registered
+	 * team and submission.
+	 */
 	private TestScenario prepareScenario() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
 		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.EVALUATION);
@@ -126,10 +152,16 @@ class OrganizerServiceTest {
 		return new TestScenario(organizer, hackathon, winnerTeam, submission);
 	}
 
+	/**
+	 * Builds a winner declaration payload for the prepared winning team.
+	 */
 	private @NonNull DeclareWinnerRequest winnerRequest() {
 		return new DeclareWinnerRequest(20L);
 	}
 
+	/**
+	 * Shared fixture bundle for winner-declaration scenarios.
+	 */
 	private record TestScenario(
 		@NonNull User organizer,
 		@NonNull Hackathon hackathon,

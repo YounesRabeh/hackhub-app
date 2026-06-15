@@ -40,6 +40,14 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link MentorService}.
+ *
+ * <p>The mocked collaborators let each scenario focus on mentor workflow
+ * rules: support requests require an in-progress hackathon and a registered
+ * team member, while call proposals must use the calendar client and update
+ * support-request state.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class MentorServiceTest {
 
@@ -69,6 +77,10 @@ class MentorServiceTest {
 
 	private MentorService mentorService;
 
+	/**
+	 * Creates the service under test with mocked repositories, authorization,
+	 * and calendar integration.
+	 */
 	@BeforeEach
 	void setUp() {
 		mentorService = new MentorService(
@@ -83,11 +95,18 @@ class MentorServiceTest {
 		);
 	}
 
+	/**
+	 * Clears the Spring Security context after each scenario.
+	 */
 	@AfterEach
 	void tearDown() {
 		TestSecurity.clear();
 	}
 
+	/**
+	 * Verifies teams can request mentor help only while the hackathon is in
+	 * progress.
+	 */
 	@Test
 	void createSupportRequestRequiresInProgressHackathon() {
 		User user = TestDataFactory.user(1L, Role.USER);
@@ -101,6 +120,10 @@ class MentorServiceTest {
 			.hasMessage("Hackathon must be IN_PROGRESS");
 	}
 
+	/**
+	 * Verifies support requests require the authenticated user to belong to a
+	 * team registered for the hackathon.
+	 */
 	@Test
 	void createSupportRequestRequiresRegisteredTeamMember() {
 		User user = TestDataFactory.user(1L, Role.USER);
@@ -117,6 +140,10 @@ class MentorServiceTest {
 			.hasMessage("Only registered team members can create support requests");
 	}
 
+	/**
+	 * Verifies proposing a call books through the calendar client, persists the
+	 * proposal, and marks the support request as call-proposed.
+	 */
 	@Test
 	void proposeCallUsesCalendarAndMarksSupportRequestCallProposed() {
 		User mentor = TestDataFactory.user(1L, Role.MENTOR);
@@ -149,14 +176,23 @@ class MentorServiceTest {
 		verify(supportRequestRepository).save(supportRequest);
 	}
 
+	/**
+	 * Builds a valid support request payload.
+	 */
 	private @NonNull CreateSupportRequestRequest validSupportRequest() {
 		return new CreateSupportRequestRequest("Deployment help", "We need help with deployment.");
 	}
 
+	/**
+	 * Builds a valid future call proposal payload.
+	 */
 	private @NonNull ProposeCallRequest validCallProposalRequest() {
 		return new ProposeCallRequest(tomorrow());
 	}
 
+	/**
+	 * Produces a future timestamp that satisfies call proposal validation.
+	 */
 	private static @NonNull LocalDateTime tomorrow() {
 		LocalDateTime now = LocalDateTime.now();
 		if (now == null) {
@@ -169,6 +205,9 @@ class MentorServiceTest {
 		return scheduledAt;
 	}
 
+	/**
+	 * Builds the saved proposal returned by the mocked repository.
+	 */
 	private static @NonNull MentorCallProposal savedCallProposal(
 		SupportRequest supportRequest,
 		User mentor
@@ -184,6 +223,10 @@ class MentorServiceTest {
 		return proposal;
 	}
 
+	/**
+	 * Mockito matcher for repository saves that accept any
+	 * {@link MentorCallProposal}.
+	 */
 	@SuppressWarnings("all")
 	private static @NonNull MentorCallProposal anyCallProposal() {
 		return isA(MentorCallProposal.class);

@@ -31,6 +31,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link HackathonService}.
+ *
+ * <p>The service is tested with mocked repositories and real mapper/state
+ * collaborators. The scenarios focus on role checks, date validation,
+ * lifecycle transition rules, staff role validation, and default status
+ * initialization during hackathon creation.</p>
+ *
+ * <p>Authentication is supplied through {@link TestSecurity} so the service's
+ * current-user lookup follows the same security-context path used at runtime.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class HackathonServiceTest {
 
@@ -42,6 +53,10 @@ class HackathonServiceTest {
 
 	private HackathonService hackathonService;
 
+	/**
+	 * Creates the service under test with mocked persistence and real pure
+	 * collaborators.
+	 */
 	@BeforeEach
 	void setUp() {
 		hackathonService = new HackathonService(
@@ -52,11 +67,17 @@ class HackathonServiceTest {
 		);
 	}
 
+	/**
+	 * Clears the Spring Security context after each scenario.
+	 */
 	@AfterEach
 	void tearDown() {
 		TestSecurity.clear();
 	}
 
+	/**
+	 * Verifies that only organizers can create hackathons.
+	 */
 	@Test
 	void createHackathonRequiresOrganizerRole() {
 		User user = TestDataFactory.user(1L, Role.USER);
@@ -68,6 +89,9 @@ class HackathonServiceTest {
 			.hasMessage("Only organizers can create hackathons");
 	}
 
+	/**
+	 * Verifies creation rejects invalid date ordering before persistence.
+	 */
 	@Test
 	void createHackathonRejectsInvalidDateOrder() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
@@ -89,6 +113,9 @@ class HackathonServiceTest {
 			.hasMessage("Registration deadline must be before submission deadline");
 	}
 
+	/**
+	 * Verifies invalid lifecycle transitions are rejected by the state model.
+	 */
 	@Test
 	void updateStatusRejectsInvalidTransition() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
@@ -105,6 +132,10 @@ class HackathonServiceTest {
 			.hasMessage("Invalid status transition from REGISTRATION_OPEN to FINISHED");
 	}
 
+	/**
+	 * Verifies mentor assignment requires the assigned user to have role
+	 * {@code MENTOR}.
+	 */
 	@Test
 	void addMentorRejectsUserWithoutMentorRole() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
@@ -120,6 +151,10 @@ class HackathonServiceTest {
 			.hasMessage("Assigned user must have role MENTOR");
 	}
 
+	/**
+	 * Verifies judge assignment requires the assigned user to have role
+	 * {@code JUDGE}.
+	 */
 	@Test
 	void addJudgeRejectsUserWithoutJudgeRole() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
@@ -135,6 +170,10 @@ class HackathonServiceTest {
 			.hasMessage("Assigned user must have role JUDGE");
 	}
 
+	/**
+	 * Verifies new hackathons always start in {@code REGISTRATION_OPEN} and are
+	 * linked to the authenticated organizer.
+	 */
 	@Test
 	void createHackathonSetsRegistrationOpenStatus() {
 		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
@@ -150,6 +189,9 @@ class HackathonServiceTest {
 		assertThat(response.organizerId()).isEqualTo(1L);
 	}
 
+	/**
+	 * Builds a valid future-dated creation request for positive scenarios.
+	 */
 	private @NonNull CreateHackathonRequest validCreateRequest() {
 		LocalDateTime base = LocalDateTime.now().plusDays(3);
 		return new CreateHackathonRequest(
@@ -163,6 +205,9 @@ class HackathonServiceTest {
 		);
 	}
 
+	/**
+	 * Mockito matcher for repository saves that accept any {@link Hackathon}.
+	 */
 	@SuppressWarnings("all")
 	private static @NonNull Hackathon anyHackathon() {
 		return isA(Hackathon.class);
