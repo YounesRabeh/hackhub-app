@@ -28,8 +28,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * System-level HTTP integration tests for the default Spring Boot test profile.
+ *
+ * <p>This class covers infrastructure contracts that span multiple controllers
+ * or framework layers: route registration, the shared API error response shape,
+ * default database schema creation, empty-database startup behavior, and fake
+ * external-client wiring.</p>
+ *
+ * <p>More detailed business workflows live in focused auth, workflow, and
+ * endpoint-coverage integration tests. These tests are intentionally broader
+ * and act as guardrails for application-level configuration.</p>
+ */
 class SystemHttpIntegrationTest extends IntegrationTestSupport {
 
+	/**
+	 * Expected Spring MVC route contract for all application controllers.
+	 *
+	 * <p>The route-mapping test compares this set against the mappings actually
+	 * registered by Spring. This makes route additions, removals, and renames
+	 * visible in one place.</p>
+	 */
 	private static final Set<String> EXPECTED_CONTROLLER_ROUTES = Set.of(
 		"GET /api/auth/me",
 		"POST /api/auth/login",
@@ -75,6 +94,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	/**
+	 * Verifies that every controller route is reachable through Spring MVC.
+	 *
+	 * <p>The assertion is intentionally exact: if a controller endpoint changes,
+	 * this test should force the expected route contract to be reviewed.</p>
+	 */
 	@Test
 	void allControllerRoutesAreMappedThroughSpringMvc() {
 		Set<String> controllerRoutes = requestMappingHandlerMapping
@@ -101,6 +126,9 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 		assertThat(controllerRoutes).containsExactlyInAnyOrderElementsOf(EXPECTED_CONTROLLER_ROUTES);
 	}
 
+	/**
+	 * Verifies the shared validation error contract for invalid request bodies.
+	 */
 	@Test
 	void validationErrorsUseStandardApiErrorShape() throws Exception {
 		postJson("/api/auth/register", registerPayload("not-an-email", "short"))
@@ -114,6 +142,9 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details", Matchers.hasItem(Matchers.containsString("password"))));
 	}
 
+	/**
+	 * Verifies the shared not-found error contract for missing domain resources.
+	 */
 	@Test
 	void notFoundErrorsUseStandardApiErrorShape() throws Exception {
 		get("/api/hackathons/999999")
@@ -127,6 +158,10 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details").isEmpty());
 	}
 
+	/**
+	 * Verifies the shared conflict error contract using a realistic duplicate
+	 * team-creation scenario.
+	 */
 	@Test
 	void conflictErrorsUseStandardApiErrorShape() throws Exception {
 		User user = saveUser(Role.USER);
@@ -146,6 +181,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details").isEmpty());
 	}
 
+	/**
+	 * Verifies the shared authentication-failure error contract.
+	 *
+	 * <p>This covers failures raised by the authentication flow itself. Missing
+	 * bearer-token entry-point behavior is covered by auth integration tests.</p>
+	 */
 	@Test
 	void unauthorizedErrorsUseStandardApiErrorShape() throws Exception {
 		postJson("/api/auth/login", loginPayload(uniqueEmail(), PASSWORD))
@@ -159,6 +200,10 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details").isEmpty());
 	}
 
+	/**
+	 * Verifies the shared forbidden error contract using a role-protected
+	 * organizer endpoint.
+	 */
 	@Test
 	void forbiddenErrorsUseStandardApiErrorShape() throws Exception {
 		User user = saveUser(Role.USER);
@@ -175,6 +220,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details").isEmpty());
 	}
 
+	/**
+	 * Verifies Hibernate creates the core schema for the default test profile.
+	 *
+	 * <p>The repository count checks also confirm this profile starts with an
+	 * empty database rather than dev-seeded data.</p>
+	 */
 	@Test
 	void databaseSchemaIsCreatedForDefaultProfile() throws Exception {
 		assertThat(userRepository.count()).isZero();
@@ -188,6 +239,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 		assertThat(tableExists("submissions")).isTrue();
 	}
 
+	/**
+	 * Verifies basic startup behavior when no hackathons exist.
+	 *
+	 * <p>The application does not expose an Actuator health endpoint, so the
+	 * public hackathon listing acts as a lightweight HTTP startup check.</p>
+	 */
 	@Test
 	void publicHackathonListWorksWithEmptyDatabase() throws Exception {
 		assertThat(hackathonRepository.count()).isZero();
@@ -198,6 +255,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$").isEmpty());
 	}
 
+	/**
+	 * Verifies the default test context uses fake external service clients.
+	 *
+	 * <p>The single-bean assertions protect against accidentally registering a
+	 * real payment or calendar client alongside the fake implementations.</p>
+	 */
 	@Test
 	void fakeExternalClientsAreActiveInDefaultTestContext() {
 		assertThat(applicationContext.getBeanNamesForType(PaymentClient.class)).hasSize(1);
@@ -216,6 +279,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 		)).externalCallId()).startsWith("fake-call-");
 	}
 
+	/**
+	 * Checks whether a table exists in the in-memory database.
+	 *
+	 * @param tableName entity table name to look up
+	 * @return {@code true} when JDBC metadata exposes the table
+	 */
 	private boolean tableExists(String tableName) throws Exception {
 		try (Connection connection = dataSource.getConnection()) {
 			DatabaseMetaData metadata = connection.getMetaData();
@@ -225,6 +294,12 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 		}
 	}
 
+	/**
+	 * Builds a valid hackathon request for forbidden-access tests.
+	 *
+	 * <p>The payload must pass request validation so the test reaches the
+	 * service-level role check and produces a 403 response.</p>
+	 */
 	private Map<String, Object> validHackathonPayload() {
 		LocalDateTime now = LocalDateTime.now().plusDays(3);
 		return Map.of(
