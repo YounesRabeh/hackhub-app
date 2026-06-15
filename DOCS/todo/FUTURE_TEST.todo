@@ -3,7 +3,9 @@
 ## System
 
 - [x] Verify application context starts with default test profile.
-- [ ] Verify all controllers are reachable through Spring MVC routing.
+- [x] Verify core controllers are registered in the Spring context.
+- [x] Verify auth controller routes are reachable through Spring MVC routing.
+- [ ] Verify every controller route is reachable through Spring MVC routing.
 - [ ] Verify global error response shape for validation, not found, conflict, unauthorized, and forbidden errors.
 - [ ] Verify OpenAPI/Swagger endpoint starts and includes secured endpoints.
 - [ ] Verify database migrations/schema creation work for test and dev profiles.
