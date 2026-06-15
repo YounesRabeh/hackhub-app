@@ -1,0 +1,14 @@
+name: hack-club-app
+packages:
+  - path: com.hackhub
+
+
+#name: hack-club-app
+#packages:
+#  - path: com.hackhub.api.controller
+#  - path: com.hackhub.application.service
+#  - path: com.hackhub.application.mapper
+#  - path: com.hackhub.infrastructure.repository
+#  - path: com.hackhub.domain.model
+#  - path: com.hackhub.domain.state
+#  - path: com.hackhub.domain.enums

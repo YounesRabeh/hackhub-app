@@ -24,7 +24,7 @@ Start the app in dev mode with:
 
 ## Dev URLs
 
-- API base: `http://localhost:8080`
+- API base:   `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - H2 console: `http://localhost:8080/h2-console`
 

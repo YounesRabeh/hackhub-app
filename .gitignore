@@ -9,6 +9,10 @@
 .gradle-home/
 build/
 
+# AppMap recordings
+tmp/appmap/
+.appmap/
+
 # Spring Boot
 out/
 .vscode/
