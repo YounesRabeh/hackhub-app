@@ -142,6 +142,8 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 			.andExpect(jsonPath("$.details", Matchers.hasItem(Matchers.containsString("password"))));
 	}
 
+
+	
 	/**
 	 * Verifies the shared not-found error contract for missing domain resources.
 	 */
