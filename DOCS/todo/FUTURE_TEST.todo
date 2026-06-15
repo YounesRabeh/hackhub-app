@@ -18,16 +18,16 @@
 - [x] Register user with valid email/password returns JWT and normalized email.
 - [x] Register rejects duplicate email case-insensitively.
 - [x] Register rejects invalid email and short password.
-- [ ] Register rejects blank fields and malformed JSON.
+- [x] Register rejects blank fields and malformed JSON.
 - [x] Login returns JWT for valid credentials.
 - [x] Login accepts email with different case.
 - [x] Login rejects wrong password.
-- [ ] Login rejects unknown email.
+- [x] Login rejects unknown email.
 - [x] Current-user endpoint returns authenticated user data.
 - [x] Protected endpoints reject missing token.
-- [ ] Protected endpoints reject malformed token.
-- [ ] Protected endpoints reject expired/invalid-signature token.
-- [ ] Auth response never exposes password hash.
+- [x] Protected endpoints reject malformed token.
+- [x] Protected endpoints reject expired/invalid-signature token.
+- [x] Auth response never exposes password hash.
 
 ## Roles
 

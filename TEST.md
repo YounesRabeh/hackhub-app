@@ -61,8 +61,11 @@ Coverage:
 - Register and login return JWT tokens.
 - Registered emails are normalized to lowercase.
 - `/api/auth/me` rejects missing tokens.
+- `/api/auth/me` rejects malformed, invalid-signature, and expired JWTs.
 - `/api/auth/me` returns the authenticated user's `id`, `email`, and `role`.
+- Auth responses never expose `password` or `passwordHash`.
 - Duplicate registration is rejected even when email case differs.
+- Register rejects blank fields and malformed JSON.
 - Register and login reject emails with surrounding whitespace.
 - Login rejects wrong passwords and unknown emails.
 - Register and login validation failures return `400 Bad Request` with validation details.

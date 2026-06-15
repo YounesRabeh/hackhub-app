@@ -15,6 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Global exception handler for the HackHub REST API.
@@ -114,6 +115,21 @@ public class GlobalExceptionHandler {
 			.collect(Collectors.toList());
 
 		return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", request, details);
+	}
+
+	/**
+	 * Handles malformed or unreadable JSON request bodies.
+	 *
+	 * @param ex the unreadable message exception
+	 * @param request the current HTTP request
+	 * @return a 400 Bad Request response
+	 */
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ApiError> handleUnreadableMessage(
+		HttpMessageNotReadableException ex,
+		HttpServletRequest request
+	) {
+		return buildResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request", request, List.of());
 	}
 
 	/**
