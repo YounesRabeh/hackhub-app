@@ -5,13 +5,13 @@
 - [x] Verify application context starts with default test profile.
 - [x] Verify core controllers are registered in the Spring context.
 - [x] Verify auth controller routes are reachable through Spring MVC routing.
-- [ ] Verify every controller route is reachable through Spring MVC routing.
-- [ ] Verify global error response shape for validation, not found, conflict, unauthorized, and forbidden errors.
-- [ ] Verify OpenAPI/Swagger endpoint starts and includes secured endpoints.
-- [ ] Verify database migrations/schema creation work for test and dev profiles.
-- [ ] Verify fake external clients are active in dev/test profiles and real clients are not used accidentally.
+- [x] Verify every controller route is reachable through Spring MVC routing.
+- [x] Verify global error response shape for validation, not found, conflict, unauthorized, and forbidden errors.
+- [x] Verify OpenAPI/Swagger endpoint starts and includes secured endpoints.
+- [x] Verify database migrations/schema creation work for test and dev profiles.
+- [x] Verify fake external clients are active in dev/test profiles and real clients are not used accidentally.
 - [x] Verify endpoint coverage tracking records controller routes.
-- [ ] Verify health/basic startup behavior with empty database.
+- [x] Verify health/basic startup behavior with empty database.
 
 ## Auth
 
