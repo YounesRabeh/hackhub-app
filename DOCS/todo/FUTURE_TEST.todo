@@ -52,15 +52,15 @@
 - [x] Allow valid status transition `IN_PROGRESS` -> `EVALUATION`.
 - [x] Allow valid status transition `EVALUATION` -> `FINISHED`.
 - [x] Reject invalid status transitions.
-- [ ] Reject registration after registration deadline.
-- [ ] Reject submission before submission phase.
+- [x] Reject registration after registration deadline.
+- [x] Reject submission before submission phase.
 - [x] Reject submission after submission deadline.
-- [ ] Reject evaluation before evaluation phase.
-- [ ] Reject winner declaration before evaluation phase.
+- [x] Reject evaluation before evaluation phase.
+- [x] Reject winner declaration before evaluation phase.
 - [x] Reject winner declaration if any submission is unevaluated.
-- [ ] Reject winner declaration if winner team has no submission.
+- [x] Reject winner declaration if winner team has no submission.
 - [x] Mark hackathon `FINISHED` after declaring winner.
-- [ ] Prevent declaring winner twice.
+- [x] Prevent declaring winner twice.
 
 ## Flow
 

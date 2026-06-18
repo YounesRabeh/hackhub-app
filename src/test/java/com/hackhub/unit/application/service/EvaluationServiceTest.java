@@ -1,6 +1,7 @@
 package com.hackhub.unit.application.service;
 
 import com.hackhub.api.dto.request.CreateEvaluationRequest;
+import com.hackhub.api.exception.BadRequestException;
 import com.hackhub.api.exception.ForbiddenException;
 import com.hackhub.application.service.EvaluationService;
 import com.hackhub.application.service.HackathonService;
@@ -29,6 +30,7 @@ import org.springframework.lang.NonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 /**
@@ -107,6 +109,28 @@ class EvaluationServiceTest {
 		assertThatThrownBy(() -> evaluationService.evaluateSubmission(30L, validEvaluationRequest()))
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage("Only assigned judges can evaluate submissions");
+	}
+
+	/**
+	 * Verifies assigned judges still cannot evaluate before the hackathon
+	 * reaches the evaluation phase.
+	 */
+	@Test
+	void evaluateSubmissionRejectsBeforeEvaluationPhase() {
+		User judge = TestDataFactory.user(1L, Role.JUDGE);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.IN_PROGRESS);
+		Submission submission = TestDataFactory.submission(30L, hackathon, TestDataFactory.team(20L, judge, judge));
+		TestSecurity.authenticateAs(judge);
+		when(userRepository.findByEmail(judge.getEmail())).thenReturn(Optional.of(judge));
+		when(submissionRepository.findById(30L)).thenReturn(Optional.of(submission));
+		when(staffAccessService.isJudgeOf(judge, hackathon)).thenReturn(true);
+		doThrow(new BadRequestException("Evaluation is not allowed in status IN_PROGRESS"))
+			.when(hackathonService)
+			.assertEvaluationAllowed(hackathon);
+
+		assertThatThrownBy(() -> evaluationService.evaluateSubmission(30L, validEvaluationRequest()))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Evaluation is not allowed in status IN_PROGRESS");
 	}
 
 	/**

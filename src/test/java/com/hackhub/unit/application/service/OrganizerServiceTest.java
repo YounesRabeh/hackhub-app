@@ -2,6 +2,7 @@ package com.hackhub.unit.application.service;
 
 import com.hackhub.api.dto.request.DeclareWinnerRequest;
 import com.hackhub.api.exception.BadRequestException;
+import com.hackhub.api.exception.ConflictException;
 import com.hackhub.application.mapper.HackathonMapper;
 import com.hackhub.application.service.OrganizerService;
 import com.hackhub.application.service.PaymentPrizeService;
@@ -111,6 +112,66 @@ class OrganizerServiceTest {
 		assertThatThrownBy(() -> organizerService.declareWinner(10L, winnerRequest()))
 			.isInstanceOf(BadRequestException.class)
 			.hasMessage("All submissions must be evaluated");
+	}
+
+	/**
+	 * Verifies a winner cannot be declared before the evaluation phase starts.
+	 */
+	@Test
+	void declareWinnerRejectsBeforeEvaluationPhase() {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.IN_PROGRESS);
+		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+		TestSecurity.authenticateAs(organizer);
+		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(teamRepository.findById(20L)).thenReturn(Optional.of(winnerTeam));
+		when(staffAccessService.isOrganizerOf(organizer, hackathon)).thenReturn(true);
+
+		assertThatThrownBy(() -> organizerService.declareWinner(10L, winnerRequest()))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Hackathon must be in EVALUATION");
+	}
+
+	/**
+	 * Verifies the selected winner must have submitted a project.
+	 */
+	@Test
+	void declareWinnerRejectsWinnerTeamWithoutSubmission() {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.EVALUATION);
+		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+		TestSecurity.authenticateAs(organizer);
+		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(teamRepository.findById(20L)).thenReturn(Optional.of(winnerTeam));
+		when(staffAccessService.isOrganizerOf(organizer, hackathon)).thenReturn(true);
+		when(registrationRepository.existsByHackathonAndTeam(hackathon, winnerTeam)).thenReturn(true);
+		when(submissionRepository.findByHackathonAndTeam(hackathon, winnerTeam)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> organizerService.declareWinner(10L, winnerRequest()))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Winner team must have a submission");
+	}
+
+	/**
+	 * Verifies the winner declaration cannot be repeated for the same hackathon.
+	 */
+	@Test
+	void declareWinnerRejectsSecondDeclaration() {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, HackathonStatus.EVALUATION);
+		Team winnerTeam = TestDataFactory.team(20L, TestDataFactory.user(2L, Role.USER), TestDataFactory.user(2L, Role.USER));
+		hackathon.setWinnerTeam(winnerTeam);
+		TestSecurity.authenticateAs(organizer);
+		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(teamRepository.findById(20L)).thenReturn(Optional.of(winnerTeam));
+		when(staffAccessService.isOrganizerOf(organizer, hackathon)).thenReturn(true);
+
+		assertThatThrownBy(() -> organizerService.declareWinner(10L, winnerRequest()))
+			.isInstanceOf(ConflictException.class)
+			.hasMessage("Winner has already been declared");
 	}
 
 	/**

@@ -33,6 +33,7 @@ import org.springframework.lang.NonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -112,6 +113,24 @@ class SubmissionServiceTest {
 		assertThatThrownBy(() -> submissionService.upsertMyTeamSubmission(10L, validSubmissionRequest()))
 			.isInstanceOf(BadRequestException.class)
 			.hasMessage("Submission deadline has passed");
+	}
+
+	@Test
+	void upsertRejectsBeforeSubmissionPhase() {
+		User user = TestDataFactory.user(1L, Role.USER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, TestDataFactory.user(2L, Role.ORGANIZER), HackathonStatus.REGISTRATION_OPEN);
+		Team team = TestDataFactory.team(20L, user, user);
+		TestSecurity.authenticateAs(user);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(teamRepository.findByMembersContaining(user)).thenReturn(Optional.of(team));
+		doThrow(new BadRequestException("Submission is not allowed in status REGISTRATION_OPEN"))
+			.when(hackathonService)
+			.assertSubmissionAllowed(hackathon);
+
+		assertThatThrownBy(() -> submissionService.upsertMyTeamSubmission(10L, validSubmissionRequest()))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Submission is not allowed in status REGISTRATION_OPEN");
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package com.hackhub.unit.application.service;
 
 import com.hackhub.api.dto.request.CreateHackathonRequest;
 import com.hackhub.api.dto.request.UpdateHackathonStatusRequest;
+import com.hackhub.api.dto.response.HackathonResponse;
 import com.hackhub.api.exception.BadRequestException;
 import com.hackhub.api.exception.ForbiddenException;
 import com.hackhub.application.mapper.HackathonMapper;
@@ -133,6 +134,79 @@ class HackathonServiceTest {
 	}
 
 	/**
+	 * Verifies the lifecycle can move from registration to active submissions.
+	 */
+	@Test
+	void updateStatusAllowsRegistrationOpenToInProgress() {
+		var response = updateStatusFromTo(
+			HackathonStatus.REGISTRATION_OPEN,
+			HackathonStatus.IN_PROGRESS
+		);
+
+		assertThat(response.status()).isEqualTo(HackathonStatus.IN_PROGRESS);
+	}
+
+	/**
+	 * Verifies the lifecycle can move from submissions to judging.
+	 */
+	@Test
+	void updateStatusAllowsInProgressToEvaluation() {
+		var response = updateStatusFromTo(
+			HackathonStatus.IN_PROGRESS,
+			HackathonStatus.EVALUATION
+		);
+
+		assertThat(response.status()).isEqualTo(HackathonStatus.EVALUATION);
+	}
+
+	/**
+	 * Verifies the lifecycle can move from judging to finished.
+	 */
+	@Test
+	void updateStatusAllowsEvaluationToFinished() {
+		var response = updateStatusFromTo(
+			HackathonStatus.EVALUATION,
+			HackathonStatus.FINISHED
+		);
+
+		assertThat(response.status()).isEqualTo(HackathonStatus.FINISHED);
+	}
+
+	/**
+	 * Verifies submissions are rejected before the hackathon reaches
+	 * {@code IN_PROGRESS}.
+	 */
+	@Test
+	void assertSubmissionAllowedRejectsBeforeSubmissionPhase() {
+		Hackathon hackathon = TestDataFactory.hackathon(
+			10L,
+			TestDataFactory.user(1L, Role.ORGANIZER),
+			HackathonStatus.REGISTRATION_OPEN
+		);
+
+		assertThatThrownBy(() -> hackathonService.assertSubmissionAllowed(hackathon))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Submission is not allowed in status REGISTRATION_OPEN");
+	}
+
+	/**
+	 * Verifies evaluations are rejected before the hackathon reaches
+	 * {@code EVALUATION}.
+	 */
+	@Test
+	void assertEvaluationAllowedRejectsBeforeEvaluationPhase() {
+		Hackathon hackathon = TestDataFactory.hackathon(
+			10L,
+			TestDataFactory.user(1L, Role.ORGANIZER),
+			HackathonStatus.IN_PROGRESS
+		);
+
+		assertThatThrownBy(() -> hackathonService.assertEvaluationAllowed(hackathon))
+			.isInstanceOf(BadRequestException.class)
+			.hasMessage("Evaluation is not allowed in status IN_PROGRESS");
+	}
+
+	/**
 	 * Verifies mentor assignment requires the assigned user to have role
 	 * {@code MENTOR}.
 	 */
@@ -236,6 +310,25 @@ class HackathonServiceTest {
 			base.plusDays(2),
 			base.plusDays(7),
 			new BigDecimal("1000.00")
+		);
+	}
+
+	/**
+	 * Runs a valid status transition for an organizer-owned hackathon.
+	 */
+	private HackathonResponse updateStatusFromTo(
+		HackathonStatus currentStatus,
+		HackathonStatus nextStatus
+	) {
+		User organizer = TestDataFactory.user(1L, Role.ORGANIZER);
+		Hackathon hackathon = TestDataFactory.hackathon(10L, organizer, currentStatus);
+		TestSecurity.authenticateAs(organizer);
+		when(hackathonRepository.findById(10L)).thenReturn(Optional.of(hackathon));
+		when(userRepository.findByEmail(organizer.getEmail())).thenReturn(Optional.of(organizer));
+
+		return hackathonService.updateStatus(
+			10L,
+			new UpdateHackathonStatusRequest(nextStatus)
 		);
 	}
 
