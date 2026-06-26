@@ -65,26 +65,26 @@
 ## Flow
 
 - [x] Full happy path: register, login, create hackathon, create team, invite member, accept invite, register team, submit, evaluate, declare winner.
-- [ ] Invite flow rejects non-team-member inviter.
-- [ ] Invite flow rejects inviting user already on a team.
-- [ ] Invite flow rejects duplicate invitation.
+- [x] Invite flow rejects non-team-member inviter.
+- [x] Invite flow rejects inviting user already on a team.
+- [x] Invite flow rejects duplicate invitation.
 - [x] Invitee can accept pending invitation.
 - [x] Invitee can decline pending invitation.
-- [ ] Non-invitee cannot accept/decline invitation.
-- [ ] Accepted/declined invitation cannot be answered again.
+- [x] Non-invitee cannot accept/decline invitation.
+- [x] Accepted/declined invitation cannot be answered again.
 - [x] Team registration works for a current team member.
-- [ ] Team registration rejects current user who is not a team member.
-- [ ] Team registration rejects already registered team.
-- [ ] Team registration rejects team over max size.
+- [x] Team registration rejects current user who is not a team member.
+- [x] Team registration rejects already registered team.
+- [x] Team registration rejects team over max size.
 - [x] Submission upsert creates new submission.
-- [ ] Submission upsert updates existing submission.
+- [x] Submission upsert updates existing submission.
 - [x] My-team submission endpoint returns current team submission.
 - [x] Support request creation requires hackathon in progress.
 - [x] Support request creation requires registered team member.
 - [x] Mentor call proposal marks support request as call proposed and stores external booking data.
 - [x] Rule violation report can be created by a mentor with access.
-- [ ] Rule violation report rejects mentor without access.
-- [ ] Rule violation report rejects unregistered reported team.
+- [x] Rule violation report rejects mentor without access.
+- [x] Rule violation report rejects unregistered reported team.
 - [x] Organizer can list rule violation reports.
 - [x] Payment transaction is created when winner is declared.
 
