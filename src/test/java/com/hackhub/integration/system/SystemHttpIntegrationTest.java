@@ -270,15 +270,27 @@ class SystemHttpIntegrationTest extends IntegrationTestSupport {
 		assertThat(paymentClient).isInstanceOf(FakePaymentClient.class);
 		assertThat(calendarClient).isInstanceOf(FakeCalendarClient.class);
 
-		assertThat(paymentClient.payPrize(
-			new PaymentRequest("System Test Hackathon", 1L, new BigDecimal("1000.00"))
-		).externalPaymentId()).startsWith("fake-pay-");
-		assertThat(calendarClient.bookCall(new CalendarBookingRequest(
+		PaymentRequest paymentRequest = new PaymentRequest(
+			"System Test Hackathon",
+			1L,
+			new BigDecimal("1000.00")
+		);
+		assertThat(paymentClient.payPrize(paymentRequest).externalPaymentId())
+			.startsWith("fake-pay-")
+			.isEqualTo(paymentClient.payPrize(paymentRequest).externalPaymentId());
+
+		CalendarBookingRequest bookingRequest = new CalendarBookingRequest(
 			"System support call",
 			LocalDateTime.now().plusDays(1),
 			"user@example.com",
 			"mentor@example.com"
-		)).externalCallId()).startsWith("fake-call-");
+		);
+		var bookingResponse = calendarClient.bookCall(bookingRequest);
+		assertThat(bookingResponse.externalCallId())
+			.startsWith("fake-call-")
+			.isEqualTo(calendarClient.bookCall(bookingRequest).externalCallId());
+		assertThat(bookingResponse.bookingUrl())
+			.isEqualTo("https://calendar.fake.local/bookings/" + bookingResponse.externalCallId());
 	}
 
 	/**
