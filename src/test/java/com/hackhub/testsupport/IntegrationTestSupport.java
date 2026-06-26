@@ -41,13 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * so generated users, teams, hackathons, and related records do not leak into
  * other integration tests.</p>
  */
-// Boots the real application context instead of a sliced test context.
 @SpringBootTest
-// Provides MockMvc so tests can exercise HTTP endpoints without opening a port.
 @AutoConfigureMockMvc
-// Rolls back database writes after each test method.
 @Transactional
-// Enables endpoint-hit tracking for tests that contribute to coverage metrics.
 @Import(EndpointCoverageTestConfiguration.class)
 @SuppressWarnings("null")
 public abstract class IntegrationTestSupport {

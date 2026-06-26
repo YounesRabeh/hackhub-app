@@ -26,6 +26,9 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for winner prize payment transaction persistence.
+ */
 @ExtendWith(MockitoExtension.class)
 class PaymentPrizeServiceTest {
 

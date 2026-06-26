@@ -37,6 +37,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for submission creation, update, and staff listing authorization rules.
+ */
 @ExtendWith(MockitoExtension.class)
 class SubmissionServiceTest {
 

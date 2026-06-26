@@ -24,6 +24,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Integration tests that verify the Spring application context, core beans, and routes.
+ */
 @SpringBootTest
 class ApplicationContextIntegrationTest {
 

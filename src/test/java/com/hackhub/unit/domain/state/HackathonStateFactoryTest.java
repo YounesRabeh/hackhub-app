@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Unit tests for hackathon lifecycle state behavior produced by the state factory.
+ */
 class HackathonStateFactoryTest {
 
 	private final HackathonStateFactory factory = new HackathonStateFactory();

@@ -10,6 +10,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
+/**
+ * MockMvc interceptor that records which application controller routes are exercised.
+ */
 @Component
 @RequiredArgsConstructor
 public class EndpointCoverageInterceptor implements HandlerInterceptor {

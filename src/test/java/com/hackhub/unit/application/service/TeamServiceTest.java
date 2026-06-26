@@ -25,6 +25,9 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for team creation rules and membership initialization.
+ */
 @ExtendWith(MockitoExtension.class)
 class TeamServiceTest {
 

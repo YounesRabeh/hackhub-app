@@ -5,6 +5,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Test configuration that installs endpoint coverage tracking for MockMvc tests.
+ */
 @TestConfiguration
 public class EndpointCoverageTestConfiguration implements WebMvcConfigurer {
 

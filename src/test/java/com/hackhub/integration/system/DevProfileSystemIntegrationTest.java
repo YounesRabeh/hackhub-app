@@ -34,6 +34,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * System integration tests for dev-profile startup, seeding, docs, and fake clients.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")

@@ -21,6 +21,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * HTTP integration tests for registration, login, JWT validation, and auth errors.
+ */
 class AuthHttpIntegrationTest extends IntegrationTestSupport {
 
 	@Value("${app.security.jwt.secret}")

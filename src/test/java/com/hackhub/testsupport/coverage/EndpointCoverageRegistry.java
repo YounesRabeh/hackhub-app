@@ -5,6 +5,9 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
+/**
+ * Thread-safe registry of controller endpoints hit during endpoint coverage tests.
+ */
 @Component
 public class EndpointCoverageRegistry {
 
