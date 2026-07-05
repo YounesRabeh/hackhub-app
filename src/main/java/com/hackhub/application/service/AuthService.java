@@ -45,6 +45,7 @@ public class AuthService {
 		return new AuthResponse(token, userMapper.toResponse(savedUser));
 	}
 
+	//Authenticates a user, generates a JWT token, and returns the authentication response.
 	public AuthResponse login(LoginRequest request) {
 		String email = request.email().trim().toLowerCase();
 		authenticationManager.authenticate(
