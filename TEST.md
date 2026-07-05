@@ -1,0 +1,1091 @@
+# HackHub Manual Test Flow
+
+Run the full automated test suite:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew clean test --no-daemon
+```
+
+Or simply:
+
+```bash
+./gradlew test
+```
+
+## Automated Test Map
+
+The automated suite is split between focused integration tests and unit tests.
+Use targeted runs while developing, then run the full suite before pushing.
+
+### Context integration tests
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/context/ApplicationContextIntegrationTest.java
+```
+
+Run only this class:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.context.ApplicationContextIntegrationTest
+```
+
+Coverage:
+
+- Spring Boot application context starts and remains active.
+- Core beans are registered: `AuthService`, `UserRepository`, `TeamRepository`, `HackathonRepository`, and `ObjectMapper`.
+- Security beans are registered: `SecurityFilterChain`, `AuthenticationManager`, `PasswordEncoder`, `JwtService`, and `JwtAuthenticationFilter`.
+- Main API controllers are registered: `AuthController`, `TeamController`, and `HackathonController`.
+- Authentication routes are mapped:
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `GET /api/auth/me`
+
+### Auth HTTP integration tests
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/auth/AuthHttpIntegrationTest.java
+```
+
+Run only this class:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.auth.AuthHttpIntegrationTest
+```
+
+Coverage:
+
+- Register and login return JWT tokens.
+- Registered emails are normalized to lowercase.
+- `/api/auth/me` rejects missing tokens.
+- `/api/auth/me` rejects malformed, invalid-signature, and expired JWTs.
+- `/api/auth/me` returns the authenticated user's `id`, `email`, and `role`.
+- Auth responses never expose `password` or `passwordHash`.
+- Duplicate registration is rejected even when email case differs.
+- Register rejects blank fields and malformed JSON.
+- Register and login reject emails with surrounding whitespace.
+- Login rejects wrong passwords and unknown emails.
+- Register and login validation failures return `400 Bad Request` with validation details.
+- Login accepts the same email with different casing.
+
+### Endpoint coverage integration test
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/coverage/EndpointCoverageIntegrationTest.java
+```
+
+Purpose:
+
+`EndpointCoverageIntegrationTest` is an integration-level coverage guard for API routes.
+It does not replace focused behavior tests. Its job is to prove that the automated HTTP suite still reaches most controller endpoints after routes are added, removed, or renamed.
+
+Run only endpoint coverage:
+
+```bash
+./gradlew cov
+```
+
+Equivalent direct Gradle test run:
+
+```bash
+GRADLE_USER_HOME=.gradle-home ./gradlew test --no-daemon --tests com.hackhub.integration.coverage.EndpointCoverageIntegrationTest
+```
+
+Run with a custom threshold:
+
+```bash
+./gradlew cov -Dendpoint.coverage.threshold=90
+```
+
+How it works:
+
+- `EndpointCoverageTestConfiguration` registers `EndpointCoverageInterceptor` for test requests.
+- The interceptor runs before controller handlers and only records handlers in `com.hackhub.api.controller`.
+- For each matched controller request, the interceptor records the HTTP method and Spring's best matching route pattern, for example `POST /api/auth/login` or `GET /api/hackathons/{hackathonId}`.
+- Hits are stored in `EndpointCoverageRegistry`.
+- The final ordered test discovers all controller mappings from `RequestMappingHandlerMapping`.
+- It compares discovered endpoints with recorded hits and calculates `hit / total * 100`.
+- The test fails when the percentage is below `endpoint.coverage.threshold`.
+
+Execution order:
+
+| Order | Test method | What it covers |
+| --- | --- | --- |
+| `1` | `coverAuthTeamAndInvitationEndpoints` | Registration, login, current user lookup, team creation, team lookup, invitation creation, invitation decline, and invitation accept |
+| `2` | `coverHackathonAndEvaluationEndpoints` | Hackathon listing/detail/create, mentor and judge assignment, team registration, registration listing, status transitions, submissions, support requests, call proposal authorization, rule violations, evaluations, and winner declaration |
+| `99` | `shouldPrintEndpointCoverageAndEnforceThreshold` | Discovers all controller mappings, logs missing endpoints, calculates coverage, and enforces the threshold |
+
+Currently exercised route groups:
+
+- Auth: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- Teams: `POST /api/teams`, `GET /api/teams/me`
+- Invitations: `POST /api/teams/{teamId}/invitations`, `POST /api/invitations/{invitationId}/accept`, `POST /api/invitations/{invitationId}/decline`
+- Hackathons: public list/detail, organizer create, mentor assignment, judge assignment, status update, registrations, submissions, and winner declaration
+- Mentor support: create/list support requests and attempt a call proposal request
+- Rule violations: create/list rule violation reports
+- Evaluations: create an evaluation and list hackathon evaluations
+
+Important behavior:
+
+- The default threshold is `80%`.
+- The Gradle `cov` task always runs fresh because `outputs.upToDateWhen { false }` is configured.
+- The task prints a summary like `Endpoint coverage: X/Y (Z%) - threshold N%`.
+- Missing endpoints are logged from the final test method when coverage is incomplete.
+- Only application API controllers count toward the denominator. Framework routes and docs routes are ignored because they are outside `com.hackhub.api.controller`.
+- A request can count as covered even when the expected result is not `2xx`; for example, the call proposal request currently expects `403 Forbidden` but still proves the route is reached.
+
+When adding or changing endpoints:
+
+- Add at least one representative MockMvc request to one of the ordered coverage flows.
+- Keep setup realistic: create users with the role needed by the endpoint and move hackathons into the required lifecycle state.
+- Prefer checking the expected HTTP status so coverage requests still catch major authorization or validation regressions.
+- If an endpoint is intentionally not covered, keep the threshold realistic and document why in the pull request or test notes.
+- After changing controller mappings, run `./gradlew cov` and inspect the printed missing endpoint list if the threshold fails.
+
+Related support classes:
+
+- `EndpointCoverageInterceptor`: records matched controller route patterns during MockMvc requests.
+- `EndpointCoverageRegistry`: stores hit endpoints in a thread-safe set and returns a sorted snapshot.
+- `EndpointCoverageTestConfiguration`: attaches the interceptor to the test Spring MVC configuration.
+- `IntegrationTestSupport`: provides MockMvc helpers, token extraction, test users, and request payload builders used by the coverage flows.
+
+### Main workflow integration test
+
+Class:
+
+```text
+src/test/java/com/hackhub/integration/workflow/HackathonHttpFlowIntegrationTest.java
+```
+
+Coverage:
+
+- Runs the core hackathon workflow through HTTP.
+- Covers participant teams, hackathon registration, submissions, judging, support requests, rule reports, winner declaration, and fake external service side effects.
+
+This file documents the dev-profile request order, request payloads, and expected values for the main HackHub backend API flow.
+
+It is based on:
+
+- `DevDataSeeder`: seeded users and one demo hackathon in the `dev` profile.
+- `FakePaymentClient`: fake prize payment after winner declaration.
+- `FakeCalendarClient`: fake mentor call booking.
+- `HackathonHttpFlowIntegrationTest`: main end-to-end request sequence.
+
+## Setup
+
+Run the app in dev mode:
+
+```bash
+./gradlew bootRun
+```
+
+Base URL:
+
+```text
+http://localhost:8080
+```
+
+Protected endpoints require:
+
+```http
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+IDs are generated by H2/JPA. Do not hard-code them. Capture IDs from responses and reuse them as placeholders such as `<hackathonId>`, `<teamId>`, `<submissionId>`, and `<mentorId>`.
+
+<details>
+<summary>0. Seeded and fake data baseline</summary>
+
+## Seeded users
+
+All seeded users exist only when the `dev` profile is active. Every account uses the same password:
+
+```text
+Password123!
+```
+
+| Email | Role |
+| --- | --- |
+| `organizer@example.com` | `ORGANIZER` |
+| `judge@example.com` | `JUDGE` |
+| `mentor1@example.com` | `MENTOR` |
+| `mentor2@example.com` | `MENTOR` |
+| `user1@example.com` | `USER` |
+| `user2@example.com` | `USER` |
+| `user3@example.com` | `USER` |
+
+## Seeded hackathon
+
+If the database has no hackathons at startup, dev seeding creates one hackathon:
+
+| Field | Expected value |
+| --- | --- |
+| `title` | `HackHub Demo Hackathon` |
+| `description` | `Demo hackathon seeded for local development.` |
+| `status` | `REGISTRATION_OPEN` |
+| `prizeAmount` | `1000.00` |
+| `organizerId` | ID of `organizer@example.com` |
+| `winnerTeamId` | `null` |
+| `registrationDeadline` | startup time + 10 days |
+| `startAt` | startup time + 12 days |
+| `submissionDeadline` | startup time + 20 days |
+| `endAt` | startup time + 25 days |
+
+No teams, invitations, registrations, submissions, evaluations, support requests, rule reports, or payments are seeded.
+
+## Fake external services
+
+| Fake | Trigger | Expected value |
+| --- | --- | --- |
+| `FakePaymentClient` | `POST /api/hackathons/{hackathonId}/winner` | creates a payment with `externalPaymentId` starting with `fake-pay-`, `status` = `COMPLETED`, `amount` = hackathon prize |
+| `FakeCalendarClient` | `POST /api/support-requests/{supportRequestId}/call-proposal` | returns `externalCallId` starting with `fake-call-` and `bookingUrl` = `https://calendar.fake.local/bookings/<externalCallId>` |
+
+Payment transactions are persisted as a DB side effect, but there is currently no payment controller endpoint that returns them.
+
+</details>
+
+<details>
+<summary>1. Login seeded actors</summary>
+
+Request:
+
+```http
+POST /api/auth/login
+```
+
+Payload example:
+
+```json
+{
+  "email": "organizer@example.com",
+  "password": "Password123!"
+}
+```
+
+Repeat for these actors:
+
+| Actor | Email | Capture |
+| --- | --- | --- |
+| Organizer | `organizer@example.com` | `<organizerToken>`, `<organizerId>` |
+| Judge | `judge@example.com` | `<judgeToken>`, `<judgeId>` |
+| Mentor | `mentor1@example.com` | `<mentorToken>`, `<mentorId>` |
+| Participant 1 | `user1@example.com` | `<user1Token>`, `<user1Id>` |
+| Participant 2 | `user2@example.com` | `<user2Token>`, `<user2Id>` |
+
+Expected response:
+
+```json
+{
+  "token": "<jwt>",
+  "user": {
+    "id": "<generatedUserId>",
+    "email": "organizer@example.com",
+    "role": "ORGANIZER"
+  }
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- `token`: non-empty JWT string.
+- `user.email`: the login email, lower-cased.
+- `user.role`: matches the seeded role from the table above.
+- `user.id`: generated ID to reuse in later requests.
+
+</details>
+
+<details>
+<summary>2. List hackathons and inspect seed data</summary>
+
+Request:
+
+```http
+GET /api/hackathons
+```
+
+Payload:
+
+```text
+none
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Response body: JSON array.
+- If the dev DB was empty at startup, one object should match the seeded hackathon values:
+
+```json
+{
+  "id": "<seedHackathonId>",
+  "title": "HackHub Demo Hackathon",
+  "description": "Demo hackathon seeded for local development.",
+  "status": "REGISTRATION_OPEN",
+  "prizeAmount": 1000.00,
+  "organizerId": "<organizerId>",
+  "winnerTeamId": null
+}
+```
+
+This endpoint is public. You may use the seeded hackathon for manual testing, or create a fresh hackathon in the next step for a cleaner end-to-end run.
+
+</details>
+
+<details>
+<summary>3. Create a fresh hackathon</summary>
+
+Request:
+
+```http
+POST /api/hackathons
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```json
+{
+  "title": "HackHub Manual Flow",
+  "description": "Manual end-to-end test hackathon",
+  "registrationDeadline": "2099-06-10T12:00:00",
+  "submissionDeadline": "2099-06-20T18:00:00",
+  "startAt": "2099-06-12T09:00:00",
+  "endAt": "2099-06-22T20:00:00",
+  "prizeAmount": 5000.00
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<hackathonId>",
+  "title": "HackHub Manual Flow",
+  "description": "Manual end-to-end test hackathon",
+  "registrationDeadline": "2099-06-10T12:00:00",
+  "submissionDeadline": "2099-06-20T18:00:00",
+  "startAt": "2099-06-12T09:00:00",
+  "endAt": "2099-06-22T20:00:00",
+  "status": "REGISTRATION_OPEN",
+  "prizeAmount": 5000.00,
+  "organizerId": "<organizerId>",
+  "winnerTeamId": null
+}
+```
+
+Expected values:
+
+- HTTP status: `201 Created`.
+- Only an `ORGANIZER` can create a hackathon.
+- `status` is always initialized to `REGISTRATION_OPEN`.
+- `winnerTeamId` is `null`.
+- Dates must be future dates.
+- Date order must satisfy:
+  - `registrationDeadline` before `submissionDeadline`.
+  - `submissionDeadline` before `endAt`.
+  - `startAt` before `endAt`.
+
+</details>
+
+<details>
+<summary>4. Assign mentor and judge</summary>
+
+Assign a mentor before using mentor-only endpoints.
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/mentors/<mentorId>
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```text
+none
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- The response is a `HackathonResponse`.
+- `status` remains `REGISTRATION_OPEN`.
+- The response does not expose mentor IDs, but the mentor is stored on the hackathon.
+- If `<mentorId>` belongs to a non-mentor user, expect `400 Bad Request` with message `Assigned user must have role MENTOR`.
+
+Assign a judge before evaluation.
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/judges/<judgeId>
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```text
+none
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- The response is a `HackathonResponse`.
+- `status` remains `REGISTRATION_OPEN`.
+- The response does not expose judge IDs, but the judge is stored on the hackathon.
+- If `<judgeId>` belongs to a non-judge user, expect `400 Bad Request` with message `Assigned user must have role JUDGE`.
+
+</details>
+
+<details>
+<summary>5. Create a team</summary>
+
+Request:
+
+```http
+POST /api/teams
+Authorization: Bearer <user1Token>
+```
+
+Payload:
+
+```json
+{
+  "name": "CodeStorm"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<teamId>",
+  "name": "CodeStorm",
+  "createdByUserId": "<user1Id>",
+  "memberIds": ["<user1Id>"]
+}
+```
+
+Expected values:
+
+- HTTP status: `201 Created`.
+- The creating user becomes the first team member.
+- A user can belong to only one team.
+- Team name length must be between 2 and 80 characters after validation.
+
+</details>
+
+<details>
+<summary>6. Invite and accept a teammate</summary>
+
+Create invitation request:
+
+```http
+POST /api/teams/<teamId>/invitations
+Authorization: Bearer <user1Token>
+```
+
+Payload:
+
+```json
+{
+  "invitedUserId": "<user2Id>"
+}
+```
+
+Expected invitation response:
+
+```json
+{
+  "id": "<invitationId>",
+  "teamId": "<teamId>",
+  "invitedUserId": "<user2Id>",
+  "invitedByUserId": "<user1Id>",
+  "status": "PENDING",
+  "createdAt": "<timestamp>",
+  "respondedAt": null
+}
+```
+
+Accept invitation request:
+
+```http
+POST /api/invitations/<invitationId>/accept
+Authorization: Bearer <user2Token>
+```
+
+Payload:
+
+```text
+none
+```
+
+Expected accepted response:
+
+```json
+{
+  "id": "<invitationId>",
+  "teamId": "<teamId>",
+  "invitedUserId": "<user2Id>",
+  "invitedByUserId": "<user1Id>",
+  "status": "ACCEPTED",
+  "createdAt": "<timestamp>",
+  "respondedAt": "<timestamp>"
+}
+```
+
+Expected values:
+
+- Invite HTTP status: `201 Created`.
+- Accept HTTP status: `200 OK`.
+- Only an existing team member can invite.
+- Only the invited user can accept or decline.
+- After acceptance, `<user2Id>` is a team member.
+
+Optional verification:
+
+```http
+GET /api/teams/me
+Authorization: Bearer <user2Token>
+```
+
+Expected `memberIds` contains both `<user1Id>` and `<user2Id>`.
+
+</details>
+
+<details>
+<summary>7. Register the team to the hackathon</summary>
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/registrations
+Authorization: Bearer <user1Token>
+```
+
+Payload:
+
+```json
+{
+  "teamId": "<teamId>"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<registrationId>",
+  "hackathonId": "<hackathonId>",
+  "teamId": "<teamId>",
+  "registeredAt": "<timestamp>"
+}
+```
+
+Expected values:
+
+- HTTP status: `201 Created`.
+- Hackathon status must be `REGISTRATION_OPEN`.
+- Current user must be a member of the team.
+- Team must have at most 5 members.
+- Registration deadline must not have passed.
+- A team can register only once per hackathon.
+
+Optional staff verification:
+
+```http
+GET /api/hackathons/<hackathonId>/registrations
+Authorization: Bearer <organizerToken>
+```
+
+Expected body is an array containing the registration above.
+
+</details>
+
+<details>
+<summary>8. Move hackathon to IN_PROGRESS</summary>
+
+Request:
+
+```http
+PATCH /api/hackathons/<hackathonId>/status
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```json
+{
+  "status": "IN_PROGRESS"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<hackathonId>",
+  "status": "IN_PROGRESS",
+  "winnerTeamId": null
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Only the organizer can change status.
+- Valid transition: `REGISTRATION_OPEN` -> `IN_PROGRESS`.
+- Team registration is now closed.
+- Team submission is now allowed.
+- Support requests are now allowed for registered team members.
+
+</details>
+
+<details>
+<summary>9. Optional mentor support and rule report branch</summary>
+
+This branch assumes the mentor was assigned in step 4 and the team was registered in step 7.
+
+## Create support request
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/support-requests
+Authorization: Bearer <user1Token>
+```
+
+Payload:
+
+```json
+{
+  "title": "Need backend help",
+  "message": "Auth filter blocks us during deployment."
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<supportRequestId>",
+  "hackathonId": "<hackathonId>",
+  "teamId": "<teamId>",
+  "createdByUserId": "<user1Id>",
+  "assignedMentorId": null,
+  "title": "Need backend help",
+  "message": "Auth filter blocks us during deployment.",
+  "status": "OPEN",
+  "createdAt": "<timestamp>",
+  "closedAt": null
+}
+```
+
+Expected values:
+
+- HTTP status: `201 Created`.
+- Hackathon status must be `IN_PROGRESS`.
+- Current user must be on a registered team.
+- New support requests start with `status` = `OPEN`.
+- New support requests currently have `assignedMentorId` = `null`.
+
+## List support requests
+
+Request:
+
+```http
+GET /api/hackathons/<hackathonId>/support-requests
+Authorization: Bearer <mentorToken>
+```
+
+Payload:
+
+```text
+none
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Current user must be an assigned mentor for the hackathon.
+- Response body is an array containing the support request above.
+
+## Propose mentor call
+
+Request:
+
+```http
+POST /api/support-requests/<supportRequestId>/call-proposal
+Authorization: Bearer <mentorToken>
+```
+
+Payload:
+
+```json
+{
+  "scheduledAt": "2099-06-14T16:30:00"
+}
+```
+
+Expected values with current public API flow:
+
+- HTTP status: `403 Forbidden`.
+- Error message: `Only assigned mentor can propose a call`.
+- Reason: support requests are created with `assignedMentorId` = `null`, and there is currently no public endpoint that assigns a mentor to a support request.
+
+Expected values if test setup or DB state assigns the support request to `<mentorId>` first:
+
+```json
+{
+  "id": "<callProposalId>",
+  "supportRequestId": "<supportRequestId>",
+  "mentorId": "<mentorId>",
+  "scheduledAt": "2099-06-14T16:30:00",
+  "externalCallId": "fake-call-<uuid>",
+  "bookingUrl": "https://calendar.fake.local/bookings/fake-call-<uuid>",
+  "createdAt": "<timestamp>"
+}
+```
+
+The support request status changes to `CALL_PROPOSED`.
+
+## Report rule violation
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/rule-violations
+Authorization: Bearer <mentorToken>
+```
+
+Payload:
+
+```json
+{
+  "reportedTeamId": "<teamId>",
+  "description": "Potential rule violation for testing endpoint coverage."
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<reportId>",
+  "hackathonId": "<hackathonId>",
+  "reportedTeamId": "<teamId>",
+  "reportedByUserId": "<mentorId>",
+  "description": "Potential rule violation for testing endpoint coverage.",
+  "createdAt": "<timestamp>"
+}
+```
+
+Expected values:
+
+- HTTP status: `201 Created`.
+- Current user must be an assigned mentor for the hackathon.
+- Reported team must be registered to the hackathon.
+
+Organizer review request:
+
+```http
+GET /api/hackathons/<hackathonId>/rule-violations
+Authorization: Bearer <organizerToken>
+```
+
+Expected body is an array containing the report above.
+
+</details>
+
+<details>
+<summary>10. Create or update team submission</summary>
+
+Request:
+
+```http
+PUT /api/hackathons/<hackathonId>/submissions/my-team
+Authorization: Bearer <user1Token>
+```
+
+Payload:
+
+```json
+{
+  "projectName": "AI Study Buddy",
+  "repositoryUrl": "https://github.com/hackhub/team-a-project",
+  "demoUrl": "https://demo.hackhub.app",
+  "description": "An AI assistant that helps students create revision plans."
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<submissionId>",
+  "hackathonId": "<hackathonId>",
+  "teamId": "<teamId>",
+  "projectName": "AI Study Buddy",
+  "repositoryUrl": "https://github.com/hackhub/team-a-project",
+  "demoUrl": "https://demo.hackhub.app",
+  "description": "An AI assistant that helps students create revision plans.",
+  "submittedAt": "<timestamp>",
+  "updatedAt": "<timestamp>"
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Hackathon status must be `IN_PROGRESS`.
+- Current user must belong to a registered team.
+- `repositoryUrl` must start with `http://` or `https://`.
+- `demoUrl` is optional, but when present it must start with `http://` or `https://`.
+- First call creates the submission and sets `submittedAt`.
+- Later calls update the same submission and refresh `updatedAt`.
+
+Optional verification:
+
+```http
+GET /api/hackathons/<hackathonId>/submissions/my-team
+Authorization: Bearer <user1Token>
+```
+
+Expected body matches the submission above.
+
+Staff verification:
+
+```http
+GET /api/hackathons/<hackathonId>/submissions
+Authorization: Bearer <organizerToken>
+```
+
+Expected body is an array containing the submission above.
+
+</details>
+
+<details>
+<summary>11. Move hackathon to EVALUATION</summary>
+
+Request:
+
+```http
+PATCH /api/hackathons/<hackathonId>/status
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```json
+{
+  "status": "EVALUATION"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<hackathonId>",
+  "status": "EVALUATION",
+  "winnerTeamId": null
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Valid transition: `IN_PROGRESS` -> `EVALUATION`.
+- Submission updates are now closed.
+- Assigned judges can now evaluate submissions.
+
+</details>
+
+<details>
+<summary>12. Evaluate the submission</summary>
+
+Request:
+
+```http
+POST /api/submissions/<submissionId>/evaluation
+Authorization: Bearer <judgeToken>
+```
+
+Payload:
+
+```json
+{
+  "score": 9,
+  "comment": "Strong implementation, good presentation, minor UX issues."
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<evaluationId>",
+  "submissionId": "<submissionId>",
+  "judgeId": "<judgeId>",
+  "score": 9,
+  "comment": "Strong implementation, good presentation, minor UX issues.",
+  "evaluatedAt": "<timestamp>"
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Hackathon status must be `EVALUATION`.
+- Current user must be an assigned judge for the hackathon.
+- `score` must be between `0` and `10`.
+- A repeated evaluation request updates the existing evaluation for that submission.
+
+Optional verification:
+
+```http
+GET /api/hackathons/<hackathonId>/evaluations
+Authorization: Bearer <organizerToken>
+```
+
+Expected body is an array containing the evaluation above.
+
+</details>
+
+<details>
+<summary>13. Declare winner and trigger fake payment</summary>
+
+Request:
+
+```http
+POST /api/hackathons/<hackathonId>/winner
+Authorization: Bearer <organizerToken>
+```
+
+Payload:
+
+```json
+{
+  "winnerTeamId": "<teamId>"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "<hackathonId>",
+  "status": "FINISHED",
+  "prizeAmount": 5000.00,
+  "organizerId": "<organizerId>",
+  "winnerTeamId": "<teamId>"
+}
+```
+
+Expected values:
+
+- HTTP status: `200 OK`.
+- Hackathon status must be `EVALUATION` before the request.
+- Current user must be the organizer.
+- Winner team must be registered to the hackathon.
+- Winner team must have a submission.
+- Every submission in the hackathon must have an evaluation.
+- After success, hackathon status becomes `FINISHED`.
+
+Expected fake payment DB side effect:
+
+| Payment field | Expected value |
+| --- | --- |
+| `hackathonId` | `<hackathonId>` |
+| `winnerTeamId` | `<teamId>` |
+| `amount` | hackathon `prizeAmount`, for example `5000.00` |
+| `externalPaymentId` | starts with `fake-pay-` |
+| `status` | `COMPLETED` |
+| `createdAt` | non-null timestamp |
+| `completedAt` | non-null timestamp |
+
+</details>
+
+<details>
+<summary>14. Finished-state guardrails</summary>
+
+Once the winner is declared, the hackathon is `FINISHED`.
+
+Expected values:
+
+- Team registration is not allowed.
+- Submission creation or updates are not allowed.
+- Evaluation is not allowed.
+- Hackathon write operations are not allowed.
+- Winner cannot be declared twice.
+
+Typical error expectations:
+
+| Request | Expected result |
+| --- | --- |
+| `POST /api/hackathons/<hackathonId>/registrations` | `400 Bad Request`, registration not allowed in `FINISHED` |
+| `PUT /api/hackathons/<hackathonId>/submissions/my-team` | `400 Bad Request`, submission not allowed in `FINISHED` |
+| `POST /api/submissions/<submissionId>/evaluation` | `400 Bad Request`, evaluation not allowed in `FINISHED` |
+| `POST /api/hackathons/<hackathonId>/winner` again | `400 Bad Request`, hackathon must be in `EVALUATION` |
+
+</details>
+
+<details>
+<summary>15. Quick security checks</summary>
+
+Unauthenticated protected request:
+
+```http
+POST /api/hackathons
+```
+
+Payload:
+
+```json
+{
+  "title": "Unauthorized Hackathon",
+  "description": "Should fail",
+  "registrationDeadline": "2099-06-10T12:00:00",
+  "submissionDeadline": "2099-06-20T18:00:00",
+  "startAt": "2099-06-12T09:00:00",
+  "endAt": "2099-06-22T20:00:00",
+  "prizeAmount": 5000.00
+}
+```
+
+Expected value:
+
+- HTTP status: `401 Unauthorized`.
+
+Wrong role request:
+
+```http
+POST /api/hackathons
+Authorization: Bearer <user1Token>
+```
+
+Expected value:
+
+- HTTP status: `403 Forbidden`.
+- Error message: `Only organizers can create hackathons`.
+
+Public request:
+
+```http
+GET /api/hackathons
+```
+
+Expected value:
+
+- HTTP status: `200 OK`.
+- No token required.
+
+</details>
