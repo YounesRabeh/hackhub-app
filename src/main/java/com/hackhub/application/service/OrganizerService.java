@@ -40,6 +40,7 @@ public class OrganizerService {
 	private final HackathonMapper hackathonMapper;
 	private final PaymentPrizeService paymentPrizeService;
 
+	//Declares the winning team for a hackathon after validating permissions, hackathon state, team eligibility, and submission evaluations.
 	@Transactional
 	public HackathonResponse declareWinner(
 		@NonNull Long hackathonId,
