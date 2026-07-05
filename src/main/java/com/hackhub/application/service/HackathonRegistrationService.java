@@ -126,6 +126,7 @@ public class HackathonRegistrationService {
 		return request;
 	}
 
+	//Retrieves the currently authenticated user.
 	private User currentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication.getName() == null) {
