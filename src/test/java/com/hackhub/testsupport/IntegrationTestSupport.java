@@ -437,5 +437,11 @@ public abstract class IntegrationTestSupport {
 		return value;
 	}
 
-
+		@NonNull
+	private Hackathon requiredHackathon(Hackathon value, String message) {
+		if (value == null) {
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
 }
