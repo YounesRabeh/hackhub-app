@@ -171,20 +171,10 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-	/**
-	 * Performs an unauthenticated JSON POST request.
-	 */
-	protected @NonNull ResultActions postJson(
-		String uri,
-		Object body
-	) throws Exception {
-		return mockMvc.perform(
-			MockMvcRequestBuilders
-				.post(requiredString(uri, "URI is required"))
-				.contentType(jsonMediaType())
-				.content(writeJson(body))
-		);
-	}
+
+
+
+	
 
 	/**
 	 * Performs an authenticated JSON POST request.
