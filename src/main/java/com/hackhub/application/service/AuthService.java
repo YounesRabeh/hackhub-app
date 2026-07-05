@@ -60,6 +60,7 @@ public class AuthService {
 		return new AuthResponse(token, userMapper.toResponse(user));
 	}
 
+	//Retrieves the currently authenticated user and returns its response DTO.
 	public UserResponse currentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication.getName() == null) {
