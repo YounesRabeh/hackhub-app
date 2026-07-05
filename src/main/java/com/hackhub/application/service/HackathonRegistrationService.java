@@ -115,6 +115,7 @@ public class HackathonRegistrationService {
 		return id;
 	}
 
+	//Validates that the registration request is not null.
 	@NonNull
 	private RegisterTeamToHackathonRequest requiredRequest(
 		RegisterTeamToHackathonRequest request
