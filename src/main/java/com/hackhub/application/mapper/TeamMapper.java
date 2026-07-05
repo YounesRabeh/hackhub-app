@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TeamMapper {
-
+	//Converts a Team entity into a TeamResponse DTO by extracting the team ID, name, creator ID, and member IDs.
 	@SuppressWarnings("unchecked")
 	public TeamResponse toResponse(Team team) {
 		if (team == null) {
