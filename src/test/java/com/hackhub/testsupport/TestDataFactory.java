@@ -98,7 +98,26 @@ public final class TestDataFactory {
 		return team;
 	}
 
-
+	/**
+	 * Creates a registration linking a team to a hackathon.
+	 *
+	 * @param id test identifier assigned directly to the entity
+	 * @param hackathon registered hackathon
+	 * @param team registered team
+	 * @return an in-memory hackathon registration fixture
+	 */
+	public static @NonNull HackathonRegistration registration(
+		Long id,
+		Hackathon hackathon,
+		Team team
+	) {
+		HackathonRegistration registration = new HackathonRegistration();
+		registration.setId(id);
+		registration.setHackathon(hackathon);
+		registration.setTeam(team);
+		registration.setRegisteredAt(LocalDateTime.now());
+		return registration;
+	}
 
 	/**
 	 * Creates a submission for a team's hackathon project.
