@@ -28,7 +28,7 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
 	private final UserMapper userMapper;
-
+	//Registers a new user, generates a JWT token, and returns the authentication response.
 	public AuthResponse register(RegisterRequest request) {
 		String email = request.email().trim().toLowerCase();
 		if (userRepository.existsByEmail(email)) {
