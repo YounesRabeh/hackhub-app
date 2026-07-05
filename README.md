@@ -2,6 +2,14 @@
 
 Basic Spring Boot backend for the HackHub hackathon platform.
 
+## Authors
+
+| Author | GitHub |
+| --- | --- |
+| Sofia Pacetti | [@sofipac24](https://github.com/sofipac24) |
+| Younes Rabeh | [@YounesRabeh](https://github.com/YounesRabeh) |
+
+
 ## Requirements
 
 - Java 25
