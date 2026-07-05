@@ -89,6 +89,7 @@ public class OrganizerService {
 		return hackathonMapper.toResponse(hackathonRepository.save(hackathon));
 	}
 
+	//Retrieves the currently authenticated user.
 	private User currentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication.getName() == null) {
