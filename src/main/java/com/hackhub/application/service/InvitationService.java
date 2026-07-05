@@ -72,6 +72,7 @@ public class InvitationService {
 		return toResponse(teamInvitationRepository.save(invitation));
 	}
 
+	//Accepts a pending team invitation for the authenticated user.
 	@Transactional
 	public InvitationResponse acceptInvitation(@NonNull Long invitationId) {
 		User currentUser = currentUser();
