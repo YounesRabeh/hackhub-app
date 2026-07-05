@@ -138,6 +138,7 @@ public class HackathonRegistrationService {
 			.orElseThrow(() -> new NotFoundException("Authenticated user not found"));
 	}
 
+	//Converts a HackathonRegistration entity into a HackathonRegistrationResponse DTO.
 	private HackathonRegistrationResponse toResponse(HackathonRegistration registration) {
 		return new HackathonRegistrationResponse(
 			registration.getId(),
