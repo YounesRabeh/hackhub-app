@@ -106,6 +106,7 @@ public class HackathonRegistrationService {
 		return teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("Team not found"));
 	}
 
+	//Validates that the provided ID is not null.
 	@NonNull
 	private Long requiredId(Long id, String message) {
 		if (id == null) {
