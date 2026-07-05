@@ -29,6 +29,7 @@ public class InvitationService {
 	private final TeamRepository teamRepository;
 	private final UserRepository userRepository;
 
+	//Creates a new invitation for a user to join a team.
 	@Transactional
 	public InvitationResponse inviteUser(
 		@NonNull Long teamId,
