@@ -279,12 +279,10 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-	/**
-	 * Builds a team creation payload.
-	 */
-	protected @NonNull Map<String, Object> createTeamPayload(String name) {
-		return Map.of("name", requiredString(name, "Team name is required"));
-	}
+
+
+
+	
 
 	/**
 	 * Builds a team invitation payload.
