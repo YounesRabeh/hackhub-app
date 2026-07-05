@@ -101,6 +101,7 @@ public class HackathonRegistrationService {
 			.orElseThrow(() -> new NotFoundException("Hackathon not found"));
 	}
 
+	// Loads a team by its ID.
 	private Team loadTeam(@NonNull Long teamId) {
 		return teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("Team not found"));
 	}
