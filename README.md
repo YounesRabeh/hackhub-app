@@ -34,11 +34,14 @@ Password: *(empty)*
 
 ## Run Tests
 
+- Preferably run after <b>clean</b> command
+
 ```bash
 ./gradlew test
 ```
 
-## Endpoint Coverage Check
+<details>
+<summary><strong>Endpoint Coverage Check</strong></summary>
 
 This project includes an integration test that tracks which API endpoints are hit and validates coverage against a threshold.
 
@@ -66,3 +69,5 @@ How to check the result:
 ```bash
 rg "Endpoint coverage:" build/test-results/test/TEST-com.hackhub.integration.coverage.EndpointCoverageIntegrationTest.xml
 ```
+
+</details>
