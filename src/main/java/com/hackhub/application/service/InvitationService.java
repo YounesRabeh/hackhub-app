@@ -115,6 +115,7 @@ public class InvitationService {
 			.orElseThrow(() -> new NotFoundException("Invitation not found"));
 	}
 
+	//Loads an invitation by its ID.
 	@NonNull
 	private Long requiredId(Long id, String message) {
 		if (id == null) {
