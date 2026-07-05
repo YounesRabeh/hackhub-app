@@ -109,13 +109,14 @@ public class InvitationService {
 		return toResponse(invitation);
 	}
 
+	//Loads an invitation by its ID.
 	private TeamInvitation loadInvitation(@NonNull Long invitationId) {
 		return teamInvitationRepository
 			.findById(invitationId)
 			.orElseThrow(() -> new NotFoundException("Invitation not found"));
 	}
 
-	//Loads an invitation by its ID.
+	//Validates that the provided ID is not null.
 	@NonNull
 	private Long requiredId(Long id, String message) {
 		if (id == null) {
@@ -124,6 +125,7 @@ public class InvitationService {
 		return id;
 	}
 
+	//Validates that the invitation request is not null.
 	@NonNull
 	private CreateInvitationRequest requiredRequest(CreateInvitationRequest request) {
 		if (request == null) {
@@ -132,18 +134,21 @@ public class InvitationService {
 		return request;
 	}
 
+	//Verifies that the authenticated user is the recipient of the invitation.
 	private void assertInvitedUser(TeamInvitation invitation, User currentUser) {
 		if (!invitation.getInvitedUser().getId().equals(currentUser.getId())) {
 			throw new ForbiddenException("Only invited user can respond to this invitation");
 		}
 	}
 
+	//Verifies that the invitation is still pending.
 	private void assertPending(TeamInvitation invitation) {
 		if (invitation.getStatus() != InvitationStatus.PENDING) {
 			throw new BadRequestException("Invitation has already been answered");
 		}
 	}
 
+	//Retrieves the currently authenticated user.
 	private User currentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication.getName() == null) {
@@ -155,6 +160,7 @@ public class InvitationService {
 			.orElseThrow(() -> new NotFoundException("Authenticated user not found"));
 	}
 
+	//Converts a TeamInvitation entity into an InvitationResponse DTO.
 	private InvitationResponse toResponse(TeamInvitation invitation) {
 		return new InvitationResponse(
 			invitation.getId(),
