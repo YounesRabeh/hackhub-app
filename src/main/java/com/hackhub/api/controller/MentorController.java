@@ -47,6 +47,18 @@ public class MentorController {
 		return mentorService.createSupportRequest(hackathonId, request);
 	}
 
+	@GetMapping("/api/hackathons/{hackathonId}/support-requests")
+	@Operation(
+		summary = "List support requests",
+		description = "Use case: mentors and staff review all support requests for a specific hackathon."
+	)
+	public List<SupportRequestResponse> listSupportRequests(
+		@Parameter(description = "Hackathon ID", example = "1")
+		@PathVariable("hackathonId") @NonNull Long hackathonId
+	) {
+		return mentorService.listSupportRequests(hackathonId);
+	}
+
 	@PostMapping("/api/support-requests/{supportRequestId}/call-proposal")
 	@Operation(
 		summary = "Propose mentor call",
