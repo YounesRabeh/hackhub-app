@@ -93,6 +93,7 @@ public class InvitationService {
 		return toResponse(invitation);
 	}
 
+	//Declines a pending team invitation for the authenticated user.
 	@Transactional
 	public InvitationResponse declineInvitation(@NonNull Long invitationId) {
 		User currentUser = currentUser();
