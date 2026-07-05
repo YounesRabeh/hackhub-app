@@ -220,9 +220,22 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-
-
-	
+	/**
+	 * Performs an authenticated JSON PATCH request.
+	 */
+	protected @NonNull ResultActions patchJsonWithBearer(
+		String uri,
+		String token,
+		Object body
+	) throws Exception {
+		return mockMvc.perform(
+			MockMvcRequestBuilders
+				.patch(requiredString(uri, "URI is required"))
+				.header(HttpHeaders.AUTHORIZATION, bearerToken(token))
+				.contentType(jsonMediaType())
+				.content(writeJson(body))
+		);
+	}	
 
 	/**
 	 * Extracts the JWT returned by auth endpoints.
