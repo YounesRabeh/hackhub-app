@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SubmissionMapper {
-
+	//Converts a Submission entity into a SubmissionResponse DTO.
 	public SubmissionResponse toResponse(Submission submission) {
 		if (submission == null) {
 			return null;
