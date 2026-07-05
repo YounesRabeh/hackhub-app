@@ -75,6 +75,7 @@ public class HackathonRegistrationService {
 		return toResponse(hackathonRegistrationRepository.save(registration));
 	}
 
+	//Retrieves all registrations for a hackathon if the current user has permission.
 	@Transactional(readOnly = true)
 	public List<HackathonRegistrationResponse> listRegistrations(@NonNull Long hackathonId) {
 		User currentUser = currentUser();
