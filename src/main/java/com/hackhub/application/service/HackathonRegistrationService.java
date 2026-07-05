@@ -36,6 +36,7 @@ public class HackathonRegistrationService {
 	private final HackathonService hackathonService;
 	private final StaffAccessService staffAccessService;
 
+	//Registers a team for a hackathon after validating eligibility and registration constraints.
 	@Transactional
 	public HackathonRegistrationResponse registerTeam(
 		@NonNull Long hackathonId,
