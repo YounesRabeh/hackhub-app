@@ -94,6 +94,7 @@ public class HackathonRegistrationService {
 			.toList();
 	}
 
+	//Loads a hackathon by its ID.
 	private Hackathon loadHackathon(@NonNull Long hackathonId) {
 		return hackathonRepository
 			.findById(hackathonId)
