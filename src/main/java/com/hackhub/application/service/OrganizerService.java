@@ -109,6 +109,7 @@ public class OrganizerService {
 		return id;
 	}
 
+	//Validates that the declare winner request is not null.
 	@NonNull
 	private DeclareWinnerRequest requiredRequest(DeclareWinnerRequest request) {
 		if (request == null) {
