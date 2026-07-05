@@ -100,6 +100,7 @@ public class OrganizerService {
 			.orElseThrow(() -> new NotFoundException("Authenticated user not found"));
 	}
 
+	//Validates that the provided ID is not null.
 	@NonNull
 	private Long requiredId(Long id, String message) {
 		if (id == null) {
